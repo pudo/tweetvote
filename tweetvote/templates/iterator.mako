@@ -1,6 +1,17 @@
 <%inherit file="base.mako" />
 <%def name="title()">Tweet Classification</%def>
 
+<div id="no_tweet">
+	No unclassified tweets in your timeline. New tweets will be loaded automatically.
+</div>
+<table border="0" width="100%" id="searcharea">
+	<form id="searchform">
+	<tr>
+		<td>Follow Search:</td>
+		<td><input id="search" name="search" /></td>
+	</tr>
+	</form>
+</table>
 <table border="0" id="tweet">
 	<tr>
 		<td colspan="2" id="header">
@@ -9,7 +20,7 @@
 	</tr>
 	<tr>
 		<td rowspan="2">
-			<img class="profile_icon" src="" alt="profile icon" />
+			<img width="48" height="48" class="profile_icon" src="" alt="profile icon" />
 		</td>
 		<td>
 			<a class="sender" href="">sender</a>: 
@@ -28,9 +39,6 @@
 		</td>
 	</tr>
 </table>
-<div id="no_tweet">
-	No unclassified tweets in your timeline. New tweets will be loaded automatically.
-</div>
 <div id="please_wait">
 <img src="/gnomes.png"><br>	
 Please wait, the gnomes are working...
@@ -53,6 +61,7 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 		$("#no_tweet").hide();
 		$("#tweet").hide();
 		$("#please_wait").show();
+		$("#search").addClass("working");
 		
 		if (pendingVote) return;
 		pendingVote = true;
@@ -83,12 +92,15 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 	});
 	
 	loadNext = function() {
-		if (pendingVote) return;
-		$.getJSON('/twitterator/next', function(json) {
+		if (pendingVote) { return; }
+			
+		$("#search").addClass("working");
+		
+		$.getJSON('/twitterator/next', {'search': $("#search").val() }, 
+			function(json) {
+			$("#search").removeClass("working");
 			if (json) {
-				$("#please_wait").hide();
-				$("#no_tweet").hide();
-				$("#tweet").show();
+				
 				$("#tweet .profile_icon").attr('src', json.user.profile_image_url);
 				$("#tweet .sender").attr('href', json.user.url);
 				$("#tweet .sender").text(json.user.screen_name);
@@ -101,15 +113,35 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 				voteDown = function() {
 					vote(json.id, -1.0);
 				}
+				
+				if ($("#search").val().length > 0) {
+					$("#searcharea").show();
+				} else {
+					$("#searcharea").hide();
+				}
+				
+				$("#please_wait").hide();
+				$("#no_tweet").hide();
+				$("#tweet").show();
+				$("#search").blur();
 			} else {
 				$("#tweet").hide();
 				$("#please_wait").hide();
 				$("#no_tweet").show();
-				setTimeout(loadNext, 30000);
+				$("#searcharea").show();
+				$("#search").focus()
+				voteUp = function() {} 
+				voteDown = function() {}
+				setTimeout(loadNext, 60000);
 			}
 			pendingVote = false;
 		});
 	}
+	
+	$("#searchform").submit(function() {
+		loadNext();
+		return false;
+	});
 	
 	loadNext();
 </script>

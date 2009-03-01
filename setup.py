@@ -16,7 +16,8 @@ setup(
         "Pylons>=0.9.7rc6",
         "SQLAlchemy>=0.4",
         "python-twitter>=0.5",
-        "FormEncode>=1.2.1"
+        "FormEncode>=1.2.1",
+        "feedparser>=4.1"
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),

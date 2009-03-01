@@ -20,8 +20,8 @@
 		#logo {
 			margin-left: auto;
 			margin-right: auto;
-			padding: 3em;
-			width: 238px;
+			padding: 1em;
+			width: 347px;
 		}
 		
 		#page_container {
@@ -160,6 +160,21 @@
 		}
 		
 		.login br { display: none;}
+		
+		#searcharea {
+			display: none;
+			padding: 0.5em 0 2em 0;
+		}
+		
+		#searcharea input {
+			padding: 0.5em;
+			font-size: 0.8em;
+			min-width: 20em;
+		}
+		
+		.working {
+			background-color: #dddddd;
+		}
 	</style>
 </head>
 <body>

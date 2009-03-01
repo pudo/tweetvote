@@ -14,7 +14,7 @@ On tweetvote, you rate tweets. Over time, this will allow us to <b>create messag
 filters</b> that can adapt to your interests, give you the <b>tweets you want to see</b>, 
 while <b>hiding the chitchat</b> you really don't care about. 
 <br><br>
-<strong>help now</strong>
+<strong>snob in</strong>
 <div style="clear: both;"></div>
 <form class="login" name="login" method="post" action="/login">
 	<label for="username">Twitter Username:</label>
