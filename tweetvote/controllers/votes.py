@@ -10,6 +10,7 @@ from formencode import validators
 import tweetvote.model as model
 from tweetvote.lib.base import *
 from tweetvote.lib import twapi
+from tweetvote.lib import classify
 
 log = logging.getLogger(__name__)
 
@@ -52,6 +53,7 @@ class VotesController(BaseController):
         model.meta.Session.merge(vote)
         model.meta.Session.commit()
         
+        classify.learn_vote(vote)
         log.debug("Created: %s" % vote)
         
         c.vote = vote

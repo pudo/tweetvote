@@ -17,6 +17,10 @@
 			background-color: #00d8ff;
 		}
 		
+		img {
+			border: 0px;
+		}
+		
 		#logo {
 			margin-left: auto;
 			margin-right: auto;

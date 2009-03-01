@@ -1,5 +1,6 @@
 """The application's Globals object"""
 import twitter
+import memcache 
 
 from pylons import config
 
@@ -19,4 +20,8 @@ class Globals(object):
         here = config['here']
         
         self.twitter_cache = twitter._FileCache(root_directory="%s/data/twitter" % here)
+        
+        if not 'memcached.server' in config:
+            config['memcached.server'] = "127.0.0.1:11211"
+        self.cache = memcache.Client([config['memcached.server']])
         

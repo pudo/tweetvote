@@ -30,7 +30,7 @@
 	</tr>
 	<tr>
 		<td class="time">
-			time
+			<span class="created_at">time</span>, <b><span class="score">score</span>%</b>
 		</td>
 	</tr>
 	<tr>
@@ -106,7 +106,8 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 				$("#tweet .sender").attr('href', json.user.url);
 				$("#tweet .sender").text(json.user.screen_name);
 				$("#tweet .message").text(json.text);
-				$("#tweet .time").text(json.created_at);
+				$("#tweet .created_at").text(json.created_at);
+				$("#tweet .score").text(json.score);
 				
 				voteUp = function() {
 					vote(json.id, 1.0);

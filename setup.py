@@ -17,7 +17,10 @@ setup(
         "SQLAlchemy>=0.4",
         "python-twitter>=0.5",
         "FormEncode>=1.2.1",
-        "feedparser>=4.1"
+        "feedparser>=4.1",
+        "BeautifulSoup>=3.1",
+        "python-memcached>=1.43",
+        "simplejson>=2.0.9"
     ],
     setup_requires=["PasteScript>=1.6.3"],
     packages=find_packages(exclude=['ez_setup']),
