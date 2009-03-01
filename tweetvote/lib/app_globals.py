@@ -26,7 +26,4 @@ class Globals(object):
         if not 'memcached.server' in config:
             config['memcached.server'] = "127.0.0.1:11211"
         self.cache = memcache.Client([config['memcached.server']])
-        
-        
-        classify.retrain()
-        
+                
