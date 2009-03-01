@@ -4,8 +4,6 @@ import memcache
 
 from pylons import config
 
-import classify
-
 class Globals(object):
 
     """Globals acts as a container for objects available throughout the
@@ -26,4 +24,6 @@ class Globals(object):
         if not 'memcached.server' in config:
             config['memcached.server'] = "127.0.0.1:11211"
         self.cache = memcache.Client([config['memcached.server']])
-                
+
+
+        # whooo
