@@ -1,0 +1,4 @@
+.pyc
+data/templates/*
+data/sessions/*
+data/twitter/*
