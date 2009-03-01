@@ -30,7 +30,7 @@ class TwitteratorController(BaseController):
         
         timeline = api.GetFriendsTimeline(since=datetime.utcnow()-timedelta(seconds=86400*7))
         for next in reversed(timeline):
-            yield next
+            yield (next.id, next.AsJsonString())
         
         query = validators.String(if_empty=None).to_python(request.params['search'], None)
         if query:
@@ -44,16 +44,20 @@ class TwitteratorController(BaseController):
             #    print "Entry: ", repr(e)
             for entry in reversed(search.entries):
                 #print "E: ", entry, " id: ", entry.id
-                yield api.GetStatus(int(entry.id.split(":")[2]))
+                id = int(entry.id.split(":")[2])
+                url = "http://twitter.com/statuses/show/%d.json" % id
+                json = urllib2.urlopen(url).read()
+                yield (id, json)
+
     
     def next(self):
         require_login()
         response.headers['Content-type'] = 'text/javascript'
         
         try:
-            for next in self._find():
-                if not model.findVoteByUserAndTweet(session['user_id'], next.id):
-                    return next.AsJsonString()
+            for (id, json) in self._find():
+                if not model.findVoteByUserAndTweet(session['user_id'], id):
+                    return json
         except Exception, e:
             log.debug(e)
         
