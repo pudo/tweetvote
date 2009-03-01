@@ -8,7 +8,7 @@ import simplejson
 import formencode
 from formencode import validators
 
-from pylons import request, response, session, tmpl_context as c
+from pylons import request, response, session, tmpl_context as c, g
 from pylons.controllers.util import abort, redirect_to
 from pylons.decorators import validate
 
@@ -38,20 +38,41 @@ class TwitteratorController(BaseController):
         if query:
             session['query'] = query
             session.save()
-            url = "http://search.twitter.com/search.atom?q=%s" \
-                        % urllib2.quote(query)
-            log.debug("Twitter search: %s" % url)
-            search = feedparser.parse(url)
-            #for e in search.entries: 
-            #    print "Entry: ", repr(e)
-            for entry in reversed(search.entries):
-                #print "E: ", entry, " id: ", entry.id
-                id = int(entry.id.split(":")[2])
-                url = "http://twitter.com/statuses/show/%d.json" % id
-                json = urllib2.urlopen(url).read()
-                yield (id, json)
+            
+            for id in self._search_entries(query):
+                status = twapi.get_status(id)
+                yield (id, status.AsJsonString())
+                
+    def _search_entries(self, query):
+        key = "search_%s_%s" % (session['user_id'], query.encode('ascii', 'xmlcharrefreplace'))
+        url = "http://search.twitter.com/search.atom?q=%s" \
+                    % urllib2.quote(query)
+        
+        seen = []
+        entries = g.cache.get(key)
+        while True: 
+            if not entries or len(entries) == 0:
+                log.debug("Reloading search feed for: %s" % query)
+                entries = feedparser.parse(url).entries
+                if not entries or len(entries) == 0: 
+                    return
+                fresh = [e in seen for e in entries]
+                if not False in fresh:
+                    return
+                        
+            while entries:
+                entry = entries.pop()
+                seen.append(entry)
+                if not entries:
+                    g.cache.delete(key)
+                else:
+                    g.cache.set(key, entries, time=300)
+                id = int(entry.id.split(':')[2])
+                yield id
+                
                 
     def _score_json(self, json):
+        # the JSON shuffle: cut it up, patch it, sow it shut
         obj = simplejson.loads(json)
         status = twapi.get_status(obj.get('id'))
         obj['score'] = "%.1f" % classify.classify(status, session['user_id'])

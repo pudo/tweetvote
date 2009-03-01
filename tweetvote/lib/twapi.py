@@ -33,7 +33,7 @@ def create_api():
             request.environ['twitter_api'] = api
             return api
         except HTTPError, httpe:
-            print "CODE: ", dir(httpe)
+            #print "CODE: ", dir(httpe)
             log.debug(httpe)
     
     return None
@@ -42,7 +42,7 @@ def get_status(id):
     key = "status_%s" % id
     status = g.cache.get(key)
     if not status:
-        status = create_api().GetStatus(id)
+        status = twitter.Api().GetStatus(id)
         g.cache.set(key, status)
     return status
     
@@ -50,7 +50,7 @@ def get_user(id):
     key = "user_%s" % id
     user = g.cache.get(key)
     if not user:
-        user = create_api().GetUser(id)
-        g.cache.set(key, user)
+        user = twitter.Api().GetUser(id)
+        g.cache.set(key, user, time=86400*2)
     return user
     

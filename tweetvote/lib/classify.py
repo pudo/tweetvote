@@ -11,6 +11,9 @@ from pylons import config
 import twapi, tokenizer
 import tweetvote.model as model
 
+
+# TODO: Locking! !!!!
+
 UP = 'up'
 DOWN = 'down'
 GLOBAL = 'global'
@@ -64,7 +67,7 @@ class StatusTokenizer(object):
         for i in range(len(tokens)):
             for add in range(0, self.seqlength + 1):
                 if i + add <= len(tokens):
-                    yield " ".join(tokens[i:i+add])
+                    yield u" ".join(tokens[i:i+add])
         
     def tokenize(self, status):
         if not hasattr(status, 'id'):
