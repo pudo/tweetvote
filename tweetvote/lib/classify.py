@@ -8,7 +8,7 @@ from BeautifulSoup import BeautifulSoup
 
 from pylons import config
 
-import format, twapi, tokenizer
+import twapi, tokenizer
 import tweetvote.model as model
 
 UP = 'up'
