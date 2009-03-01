@@ -8,7 +8,8 @@
 	<form id="searchform">
 	<tr>
 		<td>Follow Search:</td>
-		<td><input id="search" name="search" /></td>
+		<td><input id="search" name="search" 
+			value="${session['query'] if 'query' in session else ''}"/></td>
 	</tr>
 	</form>
 </table>

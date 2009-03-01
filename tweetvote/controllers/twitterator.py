@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+import urllib2
 
 import feedparser
 
@@ -16,10 +17,6 @@ import tweetvote.model as model
 
 log = logging.getLogger(__name__)
 
-class NextForm(formencode.Schema):
-    allow_extra_fields = True
-    searcg = validators.String(not_empty=False)
-
 class TwitteratorController(BaseController):
 
     def index(self):
@@ -35,15 +32,20 @@ class TwitteratorController(BaseController):
         for next in reversed(timeline):
             yield next
         
-        if 'search' in request.params and len(request.params['search']) > 0:
+        query = validators.String(if_empty=None).to_python(request.params['search'], None)
+        if query:
+            session['query'] = query
+            session.save()
             url = "http://search.twitter.com/search.atom?q=%s" \
-                        % request.params['search']
+                        % urllib2.quote(query)
+            log.debug("Twitter search: %s" % url)
             search = feedparser.parse(url)
+            #for e in search.entries: 
+            #    print "Entry: ", repr(e)
             for entry in reversed(search.entries):
                 #print "E: ", entry, " id: ", entry.id
                 yield api.GetStatus(int(entry.id.split(":")[2]))
     
-    @validate(schema=NextForm(), form="next", post_only=False, do_get=True)
     def next(self):
         require_login()
         response.headers['Content-type'] = 'text/javascript'
