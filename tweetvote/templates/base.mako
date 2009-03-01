@@ -11,7 +11,7 @@
 	<style>
 		body, td {
 			font-size: 0.9em;
-			font-family: 'Lucida Grande', Calibri, Helvetica, sans-serif;
+			font-family: 'Lucida Grande', Helvetica, Verdana, sans-serif;
 		}
 		body {
 			background-color: #00d8ff;
