@@ -111,8 +111,8 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 					'<a target="_new" href="$1">$1</a>');
 				text = text.replace(/@([\w\-_]+)/gi, 
 					'<a target="_new" href="http://twitter.com/$1">@$1</a>');
-				text = text.replace(/(#[\w\-_\.+:=]+\w)/gi, 
-					'<a target="_new" href="http://search.twitter.com/search?q=$1">$1</a>');
+				text = text.replace(/#([\w\-_\.+:=]+\w)/gi, 
+					'<a target="_new" href="http://search.twitter.com/search?q=%23$1">#$1</a>');
 				
 				$("#tweet .message").html(text);
 				$("#tweet .created_at").text(json.created_at);

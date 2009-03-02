@@ -67,6 +67,10 @@ img {
 	vertical-align: top;
 }
 
+#tweet .sender {
+    font-size: 1.1em;
+}
+
 #tweet .message {
 	font-size: 1.1em;
 	display: inline;
