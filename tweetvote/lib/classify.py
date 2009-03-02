@@ -2,6 +2,7 @@ import os, os.path
 import re
 import unicodedata
 import urllib2
+import logging
 
 from reverend.thomas import Bayes
 from BeautifulSoup import BeautifulSoup
@@ -11,8 +12,9 @@ from pylons import config
 import twapi, tokenizer
 import tweetvote.model as model
 
+log = logging.getLogger(__name__)
 
-# TODO: Locking! !!!!
+from threading import Lock
 
 UP = 'up'
 DOWN = 'down'
@@ -106,13 +108,19 @@ def test_tokenize():
         print "STATUS", repr(status)
         print "TOKENS", " | ".join([t.encode("ascii", "replace") for t in tok.tokenize(status)])
 
+
 statustok = StatusTokenizer(followlinks=False)
+fslock = Lock() # a thread lock for filesystem access
 guessers = {}
+
+
 def get_bayes(id=GLOBAL):
     if not id in guessers.keys():
         bayes = Bayes(tokenizer=statustok)
-        if os.path.exists(filename(id=id)):
-            bayes.load(filename(id=id))
+        fn = filename(id=id)
+        if os.path.exists(fn):
+            bayes.load(fn)
+        log.debug("Created classifier for '%s' at '%s'" % (id, fn))
         guessers[id] = bayes
     return guessers[id]
 
@@ -121,47 +129,86 @@ def filename(id=GLOBAL):
 
 def retrain():
     votes = model.meta.Session.query(model.Vote).all()
-    if os.path.exists(filename()):
-        os.remove(filename())
-    users = []
+    lock.acquire()
+    try:
+        if os.path.exists(filename()):
+            os.remove(filename())
+        users = []
+    finally:
+        lock.release()
     for vote in votes:
         #print "VOTE", repr(vote)
         if not vote.user_id in users:
-            if os.path.exists(filename(id=vote.user_id)):
-                os.remove(filename(id=vote.user_id))
+            lock.acquire()
+            try:
+                if os.path.exists(filename(id=vote.user_id)):
+                    os.remove(filename(id=vote.user_id))
+            finally:
+                lock.release()
             users.append(vote.user_id)
         learn_vote(vote, save=False)
-    get_bayes().save(filename())
-    for user_id in users:
-        get_bayes(id=user_id).save(filename(id=user_id))
+    lock.acquire()
+    try:
+        get_bayes().save(filename())
+        for user_id in users:
+            get_bayes(id=user_id).save(filename(id=user_id))
+    finally:
+        lock.release()
 
 
-def learn_vote(vote, save=True):
+def vote_clazz(vote):
     if vote.weight == 0: # float? 
-        return
+        return None
     clazz = UP
     if vote.weight < 0:
         clazz = DOWN
-    try: # TODO remove!!!
-        status = twapi.get_status(vote.tweet_id)
-        learn(clazz, status, vote.user_id, save=save)
-    except:
-        pass
 
+def learn_vote(vote, save=True):
+    clazz = vote_clazz(vote)
+    if clazz:
+        try:
+            status = twapi.get_status(vote.tweet_id)
+            learn(clazz, status, vote.user_id, save=save)
+        except Exception, e:
+            log.debug("Learn: %s" % repr(e))
+
+def unlearn_vote(vote, save=True):
+    clazz = vote_clazz(vote)
+    if clazz:
+        try:
+            status = twapi.get_status(vote.tweet_id)
+            unlearn(clazz, status, vote.user_id, save=save)
+        except Exception, e:
+            log.debug("Unlearn: %s" % repr(e))
+
+
+def save_cond(user_id, save=True):
+    if save:
+        get_bayes().save(filename())
+        if user_id:
+            get_bayes(id=user_id).save(filename(id=user_id))
 
 def learn(clazz, status, user_id=None, save=True):
-    get_bayes().train(clazz, status)
-    if user_id:
-        get_bayes(id=user_id).train(clazz, status)
-    
-    if not save:
-        return 
-    # TODO: spin this off into its own thread:
-    get_bayes().save(filename())
-    if user_id:
-        get_bayes(id=user_id).save(filename(id=user_id))
+    lock.acquire()
+    try:
+        get_bayes().train(clazz, status)
+        if user_id:
+            get_bayes(id=user_id).train(clazz, status)
+        save_cond(user_id, save=save)
+    finally:
+        lock.release()
 
-        
+def unlearn(clazz, status, user_id=None, save=True):
+    lock.acquire()
+    try:
+        get_bayes().untrain(clazz, status)
+        if user_id:
+            get_bayes(id=user_id).untrain(clazz, status)
+        save_cond(user_id, save=save)
+    finally:
+        lock.release()
+    
+    
 def classify(status, user_id):
     def classes(results):
         up = 0
@@ -178,9 +225,14 @@ def classify(status, user_id):
             return 0
         else: 
             return up/down
-            
-    globalprop = proportion(*classes(get_bayes().guess(status)))
-    userprop = proportion(*classes(get_bayes(id=user_id).guess(status)))
+    
+    # is locking necessary? 
+    lock.acquire()
+    try:
+        globalprop = proportion(*classes(get_bayes().guess(status)))
+        userprop = proportion(*classes(get_bayes(id=user_id).guess(status)))
+    finally:
+        lock.release()
     
     prop = (globalprop+userprop)/2.0
     return prop*100
