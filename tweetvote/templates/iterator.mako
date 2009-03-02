@@ -30,7 +30,7 @@
 	</tr>
 	<tr>
 		<td class="time">
-			<span class="created_at">time</span>, <b><span class="score">score</span>%</b>
+			<span class="created_at">time</span>, <b><span class="score">score</span>pts</b>
 		</td>
 	</tr>
 	<tr>
@@ -105,7 +105,17 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 				$("#tweet .profile_icon").attr('src', json.user.profile_image_url);
 				$("#tweet .sender").attr('href', json.user.url);
 				$("#tweet .sender").text(json.user.screen_name);
-				$("#tweet .message").text(json.text);
+				
+				text = json.text;
+				text = text.replace(/(http:\/\/[^ ]*)/gi, 
+					'<a href="$1">$1</a>');
+				text = text.replace(/@([\w\-_]+)/gi, 
+					'<a href="http://twitter.com/$1">@$1</a>');
+				text = text.replace(/(#[\w\-_\.+:=]+\w)/gi, 
+					'<a href="http://search.twitter.com/search?q=$1">$1</a>');
+					
+				alert(text);
+				$("#tweet .message").html(text);
 				$("#tweet .created_at").text(json.created_at);
 				$("#tweet .score").text(json.score);
 				
