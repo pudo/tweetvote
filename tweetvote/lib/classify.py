@@ -129,31 +129,31 @@ def filename(id=GLOBAL):
 
 def retrain():
     votes = model.meta.Session.query(model.Vote).all()
-    lock.acquire()
+    fslock.acquire()
     try:
         if os.path.exists(filename()):
             os.remove(filename())
         users = []
     finally:
-        lock.release()
+        fslock.release()
     for vote in votes:
         #print "VOTE", repr(vote)
         if not vote.user_id in users:
-            lock.acquire()
+            fslock.acquire()
             try:
                 if os.path.exists(filename(id=vote.user_id)):
                     os.remove(filename(id=vote.user_id))
             finally:
-                lock.release()
+                fslock.release()
             users.append(vote.user_id)
         learn_vote(vote, save=False)
-    lock.acquire()
+    fslock.acquire()
     try:
         get_bayes().save(filename())
         for user_id in users:
             get_bayes(id=user_id).save(filename(id=user_id))
     finally:
-        lock.release()
+        fslock.release()
 
 
 def vote_clazz(vote):
@@ -189,24 +189,24 @@ def save_cond(user_id, save=True):
             get_bayes(id=user_id).save(filename(id=user_id))
 
 def learn(clazz, status, user_id=None, save=True):
-    lock.acquire()
+    fslock.acquire()
     try:
         get_bayes().train(clazz, status)
         if user_id:
             get_bayes(id=user_id).train(clazz, status)
         save_cond(user_id, save=save)
     finally:
-        lock.release()
+        fslock.release()
 
 def unlearn(clazz, status, user_id=None, save=True):
-    lock.acquire()
+    fslock.acquire()
     try:
         get_bayes().untrain(clazz, status)
         if user_id:
             get_bayes(id=user_id).untrain(clazz, status)
         save_cond(user_id, save=save)
     finally:
-        lock.release()
+        fslock.release()
     
     
 def classify(status, user_id):
@@ -227,12 +227,12 @@ def classify(status, user_id):
             return up/down
     
     # is locking necessary? 
-    lock.acquire()
+    fslock.acquire()
     try:
         globalprop = proportion(*classes(get_bayes().guess(status)))
         userprop = proportion(*classes(get_bayes(id=user_id).guess(status)))
     finally:
-        lock.release()
+        fslock.release()
     
     prop = (globalprop+userprop)/2.0
     return prop*100
