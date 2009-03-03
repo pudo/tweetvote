@@ -18,8 +18,14 @@ def make_map():
     map.connect('/error/{action}', controller='error')
     map.connect('/error/{action}/{id}', controller='error')
 
-    # CUSTOM ROUTES HERE
-    map.resource('vote', 'votes')
+    # CUSTOM ROUTES HERE    
+    
+    # don't like map.resource, DIY
+    map.connect('/votes.{format}', controller='votes', action='index')
+    map.connect('/votes', controller='votes', action='index', format='html')
+    
+    map.connect('/votes/{id}.{format}', controller='votes', action='vote_dispatch')
+    map.connect('/votes/{id}', controller='votes', action='vote_dispatch', format='html')
     
     map.connect('/', controller='system', action='index')
     map.connect('', controller='system', action='index')

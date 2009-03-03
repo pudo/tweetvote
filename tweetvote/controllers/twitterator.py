@@ -21,8 +21,8 @@ log = logging.getLogger(__name__)
 
 class TwitteratorController(BaseController):
 
-    def index(self):
-        require_login()
+    @with_auth
+    def index(self, **kw):
         return render('/iterator.mako')
         
     def _find(self):
@@ -83,9 +83,8 @@ class TwitteratorController(BaseController):
         obj['score'] = "%.1f" % classify.classify(status, session['user_id'])
         return json.dumps(obj)
 
-    
-    def next(self):
-        require_login()
+    @with_auth
+    def next(self, **kw):
         response.headers['Content-type'] = 'text/javascript'
         
         for (id, obj) in self._find():

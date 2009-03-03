@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 try:
 	import cElementTree as etree
@@ -9,7 +10,7 @@ import simplejson as json
 
 from pylons import request, response, session, tmpl_context as c
 from pylons.controllers.util import abort, redirect_to
-from pylons.decorators import validate
+from pylons.decorators import rest
 
 import formencode
 from formencode import validators
@@ -31,120 +32,126 @@ class VoteUpdateForm(formencode.Schema):
     weight = validators.Number(not_empty=True)
 
 class VotesController(BaseController):
-    """REST Controller styled on the Atom Publishing Protocol"""
+    """REST Controller styled on the Twitter API"""
 
-    def __before__(self):
-        require_login()
-        
-    def _status(self, message, format='html', status='success', code=200):
-        if code not in [200, 302, 410]:
-            status = 'error'
-        response.status_code = code
-        if format == 'xml':
-            status = etree.Element('status')
-            etree.SubElement(status, 'status').text = status
-            etree.SubElement(status, 'message').text = message
-            return etree.tostring(status, encoding='UTF-8')
-        elif format == 'json':
-            return json.dumps({
-                'status': status,
-                'message': message
-            })
-        else:
-            c.status = status
-            c.message = message
-            return render('status.mako')
-
+    @rest.dispatch_on(POST='create')
     def index(self, format='html'):
         """GET /votes: All items in the collection"""
-        
+        if request.method in ['POST', 'PUT']:
+            print "Patch patch patch"
+            return self.create(format=format)
+        print "FORMAT", format
+        return formatted_status("n/a", code=404, format=format)
         
         # url('votes')
-
-    @validate(schema=VoteCreateForm(), form="new")
-    def create(self):
-        """POST /votes: Create a new item"""
-        user_id = session['user_id']
-        tweet_id = self.form_result.get("tweet_id")
         
-        log.debug("Create: %d, %d" % (user_id, tweet_id))
+    def _get_vote(self, id, format, check_owner=True):
+        try:
+            id = int(id)
+        except ValueError, ve:
+            raise StatusException("Invalid vote ID", http_code=404, format=format)
+
+        vote = model.findVoteById(id)
+
+        if not vote:
+            raise StatusException("No such vote.", http_code=404, format=format)
+        if check_owner:
+            user_id = session['user_id']
+            if user_id != vote.user_id:
+                raise StatusException("Not your vote.", http_code=401, format=format)
+                
+        return vote
+    
+    @rest.dispatch_on(GET='view', HEAD='view', POST='update', PUT='update', DELETE='delete')
+    def vote_dispatch(self, id, format='html'):
+        abort(405)
+    
+    @with_format()    
+    def view(self, id, format='html', **kw):
+        try:
+            vote = self._get_vote(id, format, check_owner=False)
+            
+            if format == 'json':
+                return vote.toJSON()
+            elif format == 'xml':
+                xml = vote.toXML()
+                return etree.tostring(xml, encoding='UTF-8')
+
+            c.vote = vote
+            return render("vote.mako")
+        except StatusException, se:
+            return se.message
+    
+    @with_auth
+    @with_format()
+    def create(self, format='html', **kw):
+        """POST /votes: Create a new item"""
+        
+        form = dict()
+        try:
+            form = rest_validate(VoteCreateForm)
+        except formencode.Invalid, i:
+            return fstatus(i.message, format=format, http_code=400)
+        
+        user_id = session['user_id']
+        tweet_id = form.get("tweet_id")
         
         if model.findVoteByUserAndTweet(user_id, tweet_id):
-            response.status_code = 409
-            form = render("vote_new.mako")
-            return formencode.htmlfill.render(form, 
-                defaults=self.form_result,
-                errors={'tweet_id': "This rating already exists. Use PUT to update."})
+            return fstatus("This rating already exists, please update it instead.", 
+                format=format, http_code=409)
         
         model.meta.Session.begin()
         vote = model.Vote(tweet_id, user_id, 
-            weight=self.form_result.get("weight"))
-        model.meta.Session.merge(vote)
+            weight=form.get("weight"))
+        model.meta.Session.add(vote)
         model.meta.Session.commit()
         
         classify.learn_vote(vote)
         log.debug("Created: %s" % vote)
         
-        print "JSON", vote.json()
-        print "XML", etree.tostring(vote.xml())
-        
-        c.vote = vote
-        return render("vote_edit.mako")
+        return self.view(vote.id, format=format, **kw)
 
-
-    def new(self, format='html'):
-        """GET /votes/new: Form to create a new item"""
-        # this would really require a tweet_id, so we'll forward
-        redirect_to('/classify')        
-
-    @validate(schema=VoteUpdateForm(), form="new")
-    def update(self, id):
+    @with_auth
+    @with_format()
+    def update(self, id, format='html', **kw):
         """PUT /votes/id: Update an existing item"""
-                
-        log.debug("Update: %d" % id)
-        
-        user_id = session['user_id']
         try:
-            vote = model.findVoteById(int(id))
-            if not vote:
-                abort(404, "No such vote.")
-            if user_id != vote.user_id:
-                abort(401, "Not your vote.")
+            vote = self._get_vote(id, format)
+            
+            form = dict()
+            try:
+                form = rest_validate(VoteUpdateForm)
+            except formencode.Invalid, i:
+                return fstatus(i.message, format=format, http_code=400)
+            
+            
             model.meta.Session.begin()
-            vote.weight=self.form_result.get("weight")
+            vote.weight=form.get("weight")
+            vote.time = datetime.utcnow()
             model.meta.Session.merge(vote)
             model.meta.Session.commit()
             classify.unlearn_vote(vote)
             classify.learn_vote(vote)
             log.debug("Updated: %s" % vote)
             
-            c.vote = vote
-            return render("vote_edit.mako")
-            
-        except ValueError, ve:
-            abort(404, "Invalid vote ID!")
-        
-    def delete(self, id):
+            return self.view(vote.id, format=format, **kw)
+        except StatusException, se:
+            return ve.message
+    
+    @with_auth
+    @with_format()
+    def delete(self, id, format='html', **kw):
         """DELETE /votes/id: Delete an existing item"""
-        user_id = session['user_id']
-        tweet_id = self.form_result.get("tweet_id")
-
-    def show(self, id, format='html'):
-        """GET /votes/id: Show a specific item"""
-        # url('vote', id=ID)
-
-    def edit(self, id, format='html'):
-        """GET /votes/id/edit: Form to edit an existing item"""
-        
-        user_id = session['user_id']
         try:
-            vote = model.findVoteById(int(id))
-            if not vote:
-                abort(404, "No such vote.")
-            if user_id != vote.user_id:
-                abort(401, "Not your vote.")
-            c.vote = vote
-            return render("vote_edit.mako")
+            vote = self._get_vote(id, format)
             
-        except ValueError, ve:
-            abort(404, "Invalid vote ID!")
+            model.meta.Session.begin()
+            model.meta.Session.delete(vote)
+            model.meta.Session.commit()
+            
+            classify.unlearn_vote(vote)
+            
+            return fstatus("Deleted.", format=format)
+        except StatusException, se:
+            return ve.message
+        

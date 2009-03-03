@@ -42,7 +42,7 @@ class Vote(Base):
             for tag in self.tags.split(','):
                 yield tag.strip()
         
-    def xml(self):
+    def toXML(self):
         vote = etree.Element("vote")
         etree.SubElement(vote, "id").text = str(self.id)
         etree.SubElement(vote, "tweet_id").text = str(self.tweet_id)
@@ -51,7 +51,7 @@ class Vote(Base):
         etree.SubElement(vote, "time").text = str(self.time.ctime())
         return vote
         
-    def json(self):
+    def toJSON(self):
         vote = {
             'id': self.id,
             'tweet_id': self.tweet_id,
@@ -69,7 +69,7 @@ def findVoteById(id):
     """
     
     try:
-        return Session.query(Vote).filter(Vote.id == id).one()
+        return meta.Session.query(Vote).filter(Vote.id == id).one()
     except NoResultFound, nrf:
         log.debug('Vote ID %s not found' % id)
     except MultipleResultsFound, mrf:
