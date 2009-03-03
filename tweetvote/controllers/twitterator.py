@@ -71,9 +71,9 @@ class TwitteratorController(BaseController):
                 yield id
                 
                 
-    def _score_json(self, json):
+    def _score_json(self, s):
         # the JSON shuffle: cut it up, patch it, sow it shut
-        obj = json.loads(json)
+        obj = json.loads(s)
         status = twapi.get_status(obj.get('id'))
         obj['score'] = "%.1f" % classify.classify(status, session['user_id'])
         return json.dumps(obj)
