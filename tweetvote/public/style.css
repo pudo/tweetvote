@@ -82,6 +82,10 @@ img {
 	text-align: right;
 }
 
+#tweet .score {
+    color: #333333;
+}
+
 #tweet .profile_icon {
 	margin: 0 0.5em 0 0;
 	border: 1px solid #333333;

@@ -1,6 +1,13 @@
 import logging
 from datetime import datetime
 
+try:
+	import cElementTree as etree
+except ImportError, ie:
+	import ElementTree as etree
+	
+import simplejson as json
+
 from sqlalchemy import and_
 from sqlalchemy.orm.exc import NoResultFound, MultipleResultsFound
 from sqlalchemy import Table, Column, Integer, String, Float, DateTime
@@ -29,6 +36,30 @@ class Vote(Base):
         
     def __repr__(self):
         return "Vote(%d,%d,%.2f)" % (self.tweet_id, self.user_id, self.weight)
+        
+    def tagiter(self):
+        if self.tags:
+            for tag in self.tags.split(','):
+                yield tag.strip()
+        
+    def xml(self):
+        vote = etree.Element("vote")
+        etree.SubElement(vote, "id").text = str(self.id)
+        etree.SubElement(vote, "tweet_id").text = str(self.tweet_id)
+        etree.SubElement(vote, "user_id").text = str(self.user_id)
+        etree.SubElement(vote, "weight").text = str(self.weight)
+        etree.SubElement(vote, "time").text = str(self.time.ctime())
+        return vote
+        
+    def json(self):
+        vote = {
+            'id': self.id,
+            'tweet_id': self.tweet_id,
+            'user_id': self.user_id,
+            'weight': self.weight,
+            'time': self.time.ctime()
+        }
+        return json.dumps(vote)
         
 
 def findVoteById(id):

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import urllib2
 
 import feedparser
-import simplejson
+import simplejson as json
 
 import formencode
 from formencode import validators
@@ -73,10 +73,10 @@ class TwitteratorController(BaseController):
                 
     def _score_json(self, json):
         # the JSON shuffle: cut it up, patch it, sow it shut
-        obj = simplejson.loads(json)
+        obj = json.loads(json)
         status = twapi.get_status(obj.get('id'))
         obj['score'] = "%.1f" % classify.classify(status, session['user_id'])
-        return simplejson.dumps(obj)
+        return json.dumps(obj)
 
     
     def next(self):
