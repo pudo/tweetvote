@@ -28,6 +28,7 @@ def create_api():
         api = twitter.Api(username=session['username'], 
                           password=session['password'])        
         api.SetCache(g.twitter_cache)
+        api.SetCacheTimeout(15)
         try:
             ftl = api.GetFriendsTimeline()
             request.environ['twitter_api'] = api
@@ -42,7 +43,7 @@ def get_status(id):
     key = "status_%s" % id
     status = g.cache.get(key)
     if not status:
-        status = twitter.Api().GetStatus(id)
+        status = create_api().GetStatus(id)
         g.cache.set(key, status)
     return status
     
@@ -50,7 +51,7 @@ def get_user(id):
     key = "user_%s" % id
     user = g.cache.get(key)
     if not user:
-        user = twitter.Api().GetUser(id)
+        user = create_api().GetUser(id)
         g.cache.set(key, user, time=86400*2)
     return user
     

@@ -45,29 +45,31 @@ class TwitteratorController(BaseController):
                 
     def _search_entries(self, query):
         key = "search_%s_%s" % (session['user_id'], query.encode('ascii', 'xmlcharrefreplace'))
-        url = "http://search.twitter.com/search.atom?q=%s" \
+        url = "http://search.twitter.com/search.json?q=%s" \
                     % urllib2.quote(query)
         
         seen = []
         entries = g.cache.get(key)
         while True: 
             if not entries or len(entries) == 0:
-                log.debug("Reloading search feed for: %s" % query)
-                entries = feedparser.parse(url).entries
+                log.debug("Reloading search feed for: %s from %s" % (query, url))
+                search = urllib2.urlopen(url)
+                entries = json.loads(search.read()).get('results')
+                search.close()
                 if not entries or len(entries) == 0: 
                     return
-                fresh = [e in seen for e in entries]
+                fresh = [e.get('id') in seen for e in entries]
                 if not False in fresh:
                     return
                         
             while entries:
                 entry = entries.pop()
-                seen.append(entry)
                 if not entries:
                     g.cache.delete(key)
                 else:
                     g.cache.set(key, entries, time=300)
-                id = int(entry.id.split(':')[2])
+                id = entry.get('id')
+                seen.append(id)
                 yield id
                 
                 
@@ -83,12 +85,9 @@ class TwitteratorController(BaseController):
         require_login()
         response.headers['Content-type'] = 'text/javascript'
         
-        try:
-            for (id, json) in self._find():
-                if not model.findVoteByUserAndTweet(session['user_id'], id):
-                    return self._score_json(json)
-        except Exception, e:
-            log.debug(e)
+        for (id, obj) in self._find():
+            if not model.findVoteByUserAndTweet(session['user_id'], id):
+                return self._score_json(obj)
         
         return 'false'
         
