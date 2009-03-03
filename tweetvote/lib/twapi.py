@@ -1,5 +1,7 @@
 from urllib2 import HTTPError
 import logging
+from time import time
+import md5
 
 import twitter
 
@@ -7,6 +9,34 @@ from pylons import request, session, g
 
 
 log = logging.getLogger(__name__)
+
+class MemcacheCache(object):
+    
+    def __init__(self, client, prefix='twitter_'):
+        self.client = client
+        self.prefix = prefix
+        
+    def Get(self, key):
+        return self.client.get(self._GetKey(key))
+    
+    def Set(self, key, val):
+        key = self._GetKey(key)
+        self.client.set(key, val)
+        self.client.set("%s_mod" % key, time())
+        
+    def Remove(self, key):
+        key = self._GetKey(key)
+        self.client.delete(key, val)
+        self.client.delete("%s_mod" % key, time())
+        
+    def GetCachedTime(self, key):
+        return self.client.get("%s_mod" % self._GetKey(key))
+        
+    def _GetKey(self, key):
+        return "%s%s" % (md5.new(key).hexdigest(), self.prefix)
+
+
+
 
 def set_credentials(username, password):
     session['username'] = username
@@ -27,7 +57,7 @@ def create_api():
     if 'username' in session and 'password' in session:
         api = twitter.Api(username=session['username'], 
                           password=session['password'])        
-        api.SetCache(g.twitter_cache)
+        api.SetCache(MemcacheCache(g.cache))
         api.SetCacheTimeout(15)
         try:
             ftl = api.GetFriendsTimeline()
