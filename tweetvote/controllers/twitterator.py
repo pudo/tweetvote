@@ -30,7 +30,7 @@ class TwitteratorController(BaseController):
         if not api:
             return
         
-        timeline = api.GetFriendsTimeline(since=datetime.utcnow()-timedelta(seconds=86400*7))
+        timeline = api.GetFriendsTimeline()
         for next in reversed(timeline):
             yield (next.id, next.AsJsonString())
         
@@ -44,6 +44,9 @@ class TwitteratorController(BaseController):
                 yield (id, status.AsJsonString())
                 
     def _search_entries(self, query):
+        
+        # todo bring this into twapi or submit a patch on the twitter API
+        
         key = "search_%s_%s" % (session['user_id'], query.encode('ascii', 'xmlcharrefreplace'))
         url = "http://search.twitter.com/search.json?q=%s" \
                     % urllib2.quote(query)
