@@ -29,10 +29,12 @@ class TwitterCursor(object):
             self.items[item] = sources
         
     def loadNext(self, since_id=None, count=20):
+        if count > 100:
+            raise ValueError("Too many elements requested.")
         api = twapi.create_api()
-        self.addItems(self.fetchFriendsTimeline(api, count, since_id=since_id), None)
+        self.addItems(self.fetchFriendsTimeline(api, count*2, since_id=since_id), None)
         for term in self.searches:
-            results = self.fetchSearch(api, term, count, since_id=since_id)
+            results = self.fetchSearch(api, term, count*2, since_id=since_id)
             self.addItems(results, term)
         results = self.matchResults(sorted(self.items.keys()), since_id, count)
         results_json = []

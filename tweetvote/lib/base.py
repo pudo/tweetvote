@@ -9,6 +9,7 @@ except ImportError, ie:
 	import ElementTree as etree
 	
 import simplejson as json
+import base64
 
 import formencode
 from formencode import validators
@@ -128,3 +129,33 @@ def with_format(valid=['html', 'json', 'xml']):
             return meth(*args, **kws)
         return new
     return wrap
+
+
+#################################################
+#
+# SEARCHES IN SESSION SUPPORT
+#
+
+def session_searches():
+    if not 'searches' in session.keys():
+        session['searches'] = []
+    return session['searches']
+
+def add_search(term):
+    searches = session_searches()
+    if not term in searches:
+        searches.append(term)
+    print ", ".join(searches)
+    session['searches'] = searches
+    session.save()
+    return searches
+    
+def del_search(term): 
+    searches = session_searches()
+    try:
+        searches.delete(term)
+    except ValueError, ve:
+        pass # even better
+    session['searches'] = searches
+    session.save()
+    return searches

@@ -27,6 +27,10 @@ def make_map():
     map.connect('/votes/{id}.{format}', controller='votes', action='vote_dispatch')
     map.connect('/votes/{id}', controller='votes', action='vote_dispatch', format='html')
     
+    map.connect('/search', controller='search', action='index')
+    map.connect('/search/add', controller='search', action='add')
+    map.connect('/search/del', controller='search', action='delete')
+    
     map.connect('/', controller='system', action='index')
     map.connect('', controller='system', action='index')
 
