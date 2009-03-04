@@ -71,9 +71,11 @@ def findVoteById(id):
     try:
         return meta.Session.query(Vote).filter(Vote.id == id).one()
     except NoResultFound, nrf:
-        log.debug('Vote ID %s not found' % id)
+        pass
+        #log.debug('Vote ID %s not found' % id)
     except MultipleResultsFound, mrf:
-        log.debug('Vote ID %s exists multiple times' % id)
+        pass
+        #log.debug('Vote ID %s exists multiple times' % id)
         
 
 def findUserVotes(user_id, limit=None):
@@ -90,7 +92,9 @@ def findVoteByUserAndTweet(user_id, tweet_id):
         return meta.Session.query(Vote).filter(
             and_(Vote.tweet_id == tweet_id, Vote.user_id == user_id)).one()
     except NoResultFound, nrf:
-        log.debug('Vote not found')
+        pass
+        #log.debug('Vote not found')
     except MultipleResultsFound, mrf:
-        log.debug('Vote exists multiple times')
+        pass
+        #log.debug('Vote exists multiple times')
     

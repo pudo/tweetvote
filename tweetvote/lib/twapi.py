@@ -36,7 +36,7 @@ class MemcacheCache(object):
         return "%s%s" % (md5.new(key).hexdigest(), self.prefix)
 
 
-
+ip_api = twitter.Api()
 
 def set_credentials(username, password):
     session['username'] = username
@@ -59,21 +59,21 @@ def create_api():
                           password=session['password'])        
         api.SetCache(MemcacheCache(g.cache))
         api.SetCacheTimeout(15)
-        try:
-            ftl = api.GetFriendsTimeline()
-            request.environ['twitter_api'] = api
-            return api
-        except HTTPError, httpe:
-            #print "CODE: ", dir(httpe)
-            log.debug(httpe)
-    
+        request.environ['twitter_api'] = api
+        return api
+        
     return None
     
 def get_status(id):
-    key = "status_%s" % id
+    key = status_cache_key(id)
     status = g.cache.get(key)
     if not status:
-        status = create_api().GetStatus(id)
+        try:
+            status = ip_api.GetStatus(id)
+        except HTTPError, he:
+            if he.code == 403: 
+                # why use twitter and fucking protect your profile? assholes.
+                status = create_api().GetStatus(id)
         g.cache.set(key, status)
     return status
     
@@ -81,7 +81,12 @@ def get_user(id):
     key = "user_%s" % id
     user = g.cache.get(key)
     if not user:
-        user = create_api().GetUser(id)
+        user = ip_api.GetUser(id)
         g.cache.set(key, user, time=86400*2)
     return user
     
+def status_cache_key(id):
+    return "status_%s" % id
+    
+def search_cache_key(term):
+    return "search_%s" % md5.new(term).hexdigest()
