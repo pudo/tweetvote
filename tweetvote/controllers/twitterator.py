@@ -88,6 +88,8 @@ class TwitteratorController(BaseController):
         response.headers['Content-type'] = 'text/javascript'
         
         for (id, obj) in self._find():
+            if id == session['user_id']:
+                continue
             if not model.findVoteByUserAndTweet(session['user_id'], id):
                 return self._score_json(obj)
         

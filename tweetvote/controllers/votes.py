@@ -136,7 +136,7 @@ class VotesController(BaseController):
             
             return self.view(vote.id, format=format, **kw)
         except StatusException, se:
-            return ve.message
+            return se.message
     
     @with_auth
     @with_format()
@@ -153,5 +153,5 @@ class VotesController(BaseController):
             
             return fstatus("Deleted.", format=format)
         except StatusException, se:
-            return ve.message
+            return se.message
         
