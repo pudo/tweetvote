@@ -90,40 +90,112 @@ strong {
 
 
 #timeline {
-    min-width: 564px;
+    padding-top: 15px;
+    min-width: 560px;
     background-color: white;
 }
 
 #prototype {
-    
 }
+
+/*
+ red: #cf0064
+ green: #cccf00
+*/
 
 .tweet {
-    min-height: 60px;
-    border-top: 1px solid #dddddd;
-    border-left: 1px solid #dddddd;
-    border-right: 1px solid #dddddd;
-    border-bottom: 1px solid #dddddd;
-    padding: 6px; /* 0 6px 0; */
-    margin-left: 48px;
-    margin-right: 48px;
+    width: 560px;
+    height: 80px;
+    border-bottom: 1px dashed #999;
+    padding-left: 2px;
+    padding-right: 2px;
 }
 
-.tweet.stat_up, .tweet.vote_up {
-    margin-left: 96px;
-    margin-right: 0px;
-    background-color: #d0ffcb;
+.tweet.stat_up, 
+.tweet.vote_up {
+    width: 536px;
+    border-left: 24px solid #cccf00;
 }
 
-.tweet.stat_down, .tweet.vote_down {
-    margin-left: 0px;
-    margin-right: 96px;
-    background-color: #ffd5d5;
+.tweet.stat_down, 
+.tweet.vote_down {
+    width: 536px;
+    border-right: 24px solid #cf0064;
+}
+
+.tweet .box {
+    width: 488px;
+    padding: 6px;
+    display: table-cell;
+}
+
+.tweet .leftbox,
+.tweet .rightbox {
+    width: 24px;
+    height: 80px;
+    display: table-cell;
+}
+
+.tweet .leftbox {
+    padding-left: 12px;
+}
+
+.tweet .rightbox {
+    padding-right: 12px;
+}
+
+.tweet.stat_up .box, 
+.tweet.vote_up .box {
+    /*background: green;*/
+}
+
+.tweet.stat_up .leftbox, 
+.tweet.vote_up .leftbox {
+    padding-left: 0px;
+}
+
+.tweet.stat_up .rightbox, 
+.tweet.vote_up .rightbox {
+    padding-right: 0px;
+}
+
+.tweet .rightbox {
+    padding-right: 24px;
+}
+
+.tweet.stat_down .box, 
+.tweet.vote_down .box {
+    /*background: red;*/
+}
+
+.tweet.stat_down .leftbox, 
+.tweet.vote_down .leftbox {
+    padding-left: 0px;
+}
+
+.tweet.stat_down .rightbox, 
+.tweet.vote_down .rightbox {
+    padding-right: 0px;
+}
+
+.tweet.current .leftbox {
+    background: url(/arrow_left_light.png) no-repeat center right;
+}
+
+.tweet.current .rightbox {
+    background: url(/arrow_right_light.png) no-repeat center left;
+}
+
+.tweet.vote_up .leftbox {
+    background: url(/arrow_left_heavy.png) no-repeat center right;
+}
+
+.tweet.vote_down .rightbox {
+    background: url(/arrow_right_heavy.png) no-repeat center left;
 }
 
 .tweet.current {
-    border: 1px solid black;
-    color: red;
+    background: #eee;
 }
 
 .tweet .profile_icon {
@@ -141,104 +213,4 @@ strong {
     font-style: italic;
     padding-top: 0.5em;
     color: #aaa;
-}
-
-
-
-
-
-
-
-
-
-
-/*
-#tweet, #no_tweet {
-	display: none;
-}
-
-#tweet {
-	width: 100%;
-}
-
-#tweet #header {
-	padding: 0.5em 0 0.7em 0;
-	font-family: Georgia, serif;
-	font-size: 1.8em;
-	color: #bbbbbb;
-}
-
-#tweet td {
-	vertical-align: top;
-}
-
-#tweet .sender {
-    font-size: 1.1em;
-}
-
-#tweet .message {
-	font-size: 1.1em;
-	display: inline;
-}
-
-#tweet .time {
-	font-size: 0.8em;
-	color: #bbbbbb;
-	text-align: right;
-}
-
-#tweet .score {
-    color: #333333;
-}
-
-#tweet .profile_icon {
-	margin: 0 0.5em 0 0;
-	border: 1px solid #333333;
-}
-
-#tweet .votes {
-	text-align: center;
-}
-
-#tweet .votes #vote_up {
-	padding-right: 1em;
-}
-
-#tweet .votes #vote_down {
-	padding-left: 1em;
-}
-
-#tweet .votes img {
-	margin: 1em;
-}
-
-#please_wait {
-	display: none;
-	width: 444px;
-	text-align: center;
-	color: black;
-}
-
-.hint {
-	width: 100%;
-	padding: 1em;
-	font-size: 0.7em;
-	text-align: center;
-}
-
-
-
-#searcharea {
-	display: none;
-	padding: 0.5em 0 2em 0;
-}
-
-#searcharea input {
-	padding: 0.5em;
-	font-size: 0.8em;
-	min-width: 20em;
-}
-
-.working {
-	background-color: #dddddd;
 }

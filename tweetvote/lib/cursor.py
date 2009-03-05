@@ -137,8 +137,3 @@ class TwitterCursor(object):
             g.cache.set(twapi.status_cache_key(s.id), s)
         return [s.id for s in statuses]
         
-        
-twapi.set_credentials("pudo", "worm256")
-user_id = 14443226
-cur = TwitterCursor(user_id)
-cur.addSearch("#spectrial")
