@@ -36,7 +36,8 @@ class TwitterCursor(object):
         for term in self.searches:
             results = self.fetchSearch(api, term, count*2, since_id=since_id)
             self.addItems(results, term)
-        results = self.matchResults(sorted(self.items.keys()), since_id, count)
+        rkeys = [k for k in reversed(sorted(self.items.keys()))]
+        results = self.matchResults(rkeys, count, since_id=since_id)
         results_json = []
         for result in results:
             status = twapi.get_status(result)
@@ -52,7 +53,7 @@ class TwitterCursor(object):
             results_json.append(rdata)
         return "[{%s}]" % "},{".join(results_json)
         
-    def matchResults(self, results, since_id, count):
+    def matchResults(self, results, count, since_id=None):
         if since_id:
             matching = [r for r in results if r > since_id]
             return matching[max(0, len(matching)-count):len(matching)]

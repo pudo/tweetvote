@@ -153,7 +153,7 @@ def add_search(term):
 def del_search(term): 
     searches = session_searches()
     try:
-        searches.delete(term)
+        searches.remove(term)
     except ValueError, ve:
         pass # even better
     session['searches'] = searches

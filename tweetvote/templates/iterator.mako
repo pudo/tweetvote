@@ -103,7 +103,7 @@ Hint: you can also use the '+' and '-' keys to quickly classify tweets.
 			if (json) {
 				
 				$("#tweet .profile_icon").attr('src', json.user.profile_image_url);
-				$("#tweet .sender").attr('href', json.user.url);
+				$("#tweet .sender").attr('href', 'http://twitter.com/' + json.user.screen_name);
 				$("#tweet .sender").text(json.user.screen_name);
 				
 				text = json.text;

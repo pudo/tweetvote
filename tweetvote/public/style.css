@@ -13,19 +13,18 @@ img {
 #logo {
 	margin-left: auto;
 	margin-right: auto;
-	padding: 1em;
+	padding: 2em;
 	width: 347px;
 }
 
 #page_container {
-	width: 444px;
+	width: 564px;
 	margin-left: auto;
 	margin-right: auto;
 }
 
 #page {
 	background-color: white;
-	padding: 0 1em 0 1em;
 	color: #333333;
 }
 
@@ -48,6 +47,112 @@ img {
 	color: white;
 }
 
+strong {
+	font-family: Georgia, serif;
+	font-size: 2em;
+	float: right;
+	font-weight: normal;
+	color: black;
+}
+
+.login {
+	padding: 1em 0 0.3em 0;
+}
+
+.login label {
+	float: left;
+	width: 40%;
+	margin: 0.5em 0 0 0;
+}
+
+.login input {
+	margin: 0.4em 0 0 0;
+	padding: 0.2em;
+	display: block;
+	font-size: 0.8em;
+}
+
+.login input[type=submit] {
+	border: 1px solid white;
+	background-color: #d4d700;
+	color: white;
+	font-size: 1em;
+	padding: 0.3em 0.8em 0.3em 0.8em;
+	margin: 0.5em;
+	font-weight: bold;
+}
+
+.login .error-message {
+	color: #ff5732;
+}
+
+.login br { display: none;}
+
+
+#timeline {
+    min-width: 564px;
+    background-color: white;
+}
+
+#prototype {
+    
+}
+
+.tweet {
+    min-height: 60px;
+    border-top: 1px solid #dddddd;
+    border-left: 1px solid #dddddd;
+    border-right: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+    padding: 6px; /* 0 6px 0; */
+    margin-left: 48px;
+    margin-right: 48px;
+}
+
+.tweet.stat_up, .tweet.vote_up {
+    margin-left: 96px;
+    margin-right: 0px;
+    background-color: #d0ffcb;
+}
+
+.tweet.stat_down, .tweet.vote_down {
+    margin-left: 0px;
+    margin-right: 96px;
+    background-color: #ffd5d5;
+}
+
+.tweet.current {
+    border: 1px solid black;
+    color: red;
+}
+
+.tweet .profile_icon {
+    float: left;
+    margin-right: 10px;
+    border: 1px solid #333;
+}
+
+.tweet .content {
+    padding-left: 58px;
+}
+
+.tweet .meta {
+    font-size: 0.7em;
+    font-style: italic;
+    padding-top: 0.5em;
+    color: #aaa;
+}
+
+
+
+
+
+
+
+
+
+
+/*
 #tweet, #no_tweet {
 	display: none;
 }
@@ -121,46 +226,7 @@ img {
 	text-align: center;
 }
 
-strong {
-	font-family: Georgia, serif;
-	font-size: 2em;
-	float: right;
-	font-weight: normal;
-	color: black;
-}
 
-.login {
-	padding: 1em 0 0.3em 0;
-}
-
-.login label {
-	float: left;
-	width: 40%;
-	margin: 0.5em 0 0 0;
-}
-
-.login input {
-	margin: 0.4em 0 0 0;
-	padding: 0.2em;
-	display: block;
-	font-size: 0.8em;
-}
-
-.login input[type=submit] {
-	border: 1px solid white;
-	background-color: #d4d700;
-	color: white;
-	font-size: 1em;
-	padding: 0.3em 0.8em 0.3em 0.8em;
-	margin: 0.5em;
-	font-weight: bold;
-}
-
-.login .error-message {
-	color: #ff5732;
-}
-
-.login br { display: none;}
 
 #searcharea {
 	display: none;
