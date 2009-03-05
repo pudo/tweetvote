@@ -24,3 +24,6 @@ tweetvote/model/meta.pyc
 tweetvote/model/vote.pyc
 tweetvote/public/reload.png
 data/bayes/global.bay
+tweetvote/controllers/search.pyc
+tweetvote/lib/cursor.pyc
+tweetvote/lib/twitter.pyc
