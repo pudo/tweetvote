@@ -117,8 +117,17 @@ $(document).ready(function () {
                 '<a href="javascript:addSearch(\'#$1\');">#$1</a>');
             
             $(elemSel + " .text").html(text);
-            $(elemSel + " .created_at").text(elem.status.created_at);
+            $(elemSel + " .created_at").text(elem.status.created_at.substring(0, 25));
             $(elemSel + " .score").text(elem.score);
+            sources = "";
+            if (elem.sources && elem.sources.length > 0) {
+                $.each(elem.sources, function (i, s) {
+                    sources += s + " ";
+                });
+            }
+            if (sources.length > 0) {
+                $(elemSel + " .source").text("via " + sources);
+            }
             
             $(elemSel).click(function() {
                 selectElement(elem.status.id);

@@ -8,7 +8,7 @@
 	<link rel="stylesheet" type="text/css" href="/style.css" />
 </head>
 <body>
-	<div id="logo"><img src="/logo.png" alt="tweetvote"></div>
+	<div id="logo"><a href="/"><img src="/logo.png" alt="tweetvote"></a></div>
 	
 	<div id="page_container">
 		<img src="/page_top.png">

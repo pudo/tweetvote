@@ -19,7 +19,8 @@
 				<a target="_new" href="#" class="sender">(nobody)</a>
 				<span class="text">(no text)</span>
 				<div class="meta">
-					<span class="created_at">time</span>, <b><span class="score">score</span>pts</b>
+					<span class="created_at">time</span>, <b><span class="score">score</span>pts</b> 
+					<span class="source">&nbsp;</span>
 				</div>
 			</div>
 		</div>
