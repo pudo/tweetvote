@@ -25,14 +25,13 @@ img {
 }
 
 #page {
-	background-color: white;
-	color: #333333;
-	min-height: 15em;
+    background-color:white;
+    color:#333333;
+    min-height:15em;
 }
 
 #page a {
-	text-decoration: none;
-	font-weight: bold;
+    text-decoration:none;
 }
 
 #footer {
@@ -50,11 +49,11 @@ img {
 }
 
 strong {
-	font-family: Georgia, serif;
-	font-size: 2em;
-	float: right;
-	font-weight: normal;
-	color: black;
+    color:black;
+    float:right;
+    font-size:1.8em;
+    font-weight:normal;
+    margin:-21px 0px;
 }
 
 .login {
@@ -62,9 +61,10 @@ strong {
 }
 
 .login label {
-	float: left;
-	width: 40%;
-	margin: 0.5em 0 0 0;
+    float:left;
+    margin:0.5em 0.5em 0;
+    width:40%;
+    text-align:right;
 }
 
 .login input {
@@ -138,6 +138,7 @@ strong {
     height: 80px;
     max-height: 80px;
     display: table-cell;
+    cursor: pointer;
 }
 
 .tweet .leftbox {
@@ -182,11 +183,13 @@ strong {
     padding-right: 0px;
 }
 
-.tweet.current .leftbox {
+.tweet.current .leftbox, 
+.tweet:hover .leftbox {
     background: url(/arrow_left_light.png) no-repeat center right;
 }
 
-.tweet.current .rightbox {
+.tweet.current .rightbox, 
+.tweet:hover .rightbox {
     background: url(/arrow_right_light.png) no-repeat center left;
 }
 
@@ -200,6 +203,10 @@ strong {
 
 .tweet.current {
     background: #eee;
+}
+
+.tweet .sender {
+    font-weight: bold;
 }
 
 .tweet .profile_icon {
@@ -255,7 +262,7 @@ strong {
     margin-bottom: -33px;
     min-width: 42px;
     min-height: 42px;
-    
+    cursor: pointer;
 }
 
 .searches .search_tag,

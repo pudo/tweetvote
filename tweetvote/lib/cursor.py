@@ -30,7 +30,7 @@ class TwitterCursor(object):
                 sources += self.items[item]
             self.items[item] = sources
         
-    def loadNext(self, since_id=None, count=20):
+    def loadNext(self, since_id=None, count=100):
         if count > 100:
             raise ValueError("Too many elements requested.")
         api = twapi.create_api()
@@ -38,8 +38,10 @@ class TwitterCursor(object):
         for term in self.searches:
             results = self.fetchSearch(api, term, count*2, since_id=since_id)
             self.addItems(results, term)
+        log.debug("Found a total of %d items" % len(self.items))
         rkeys = [k for k in reversed(sorted(self.items.keys()))]
         results = self.matchResults(rkeys, count, since_id=since_id)
+        log.debug("Giving %d items" % len(results))
         results_json = []
         for result in results:
             status = twapi.get_status(result)
@@ -53,6 +55,7 @@ class TwitterCursor(object):
             rdata += '"sources": %s,' % json.dumps(sources)
             rdata += '"score": %.2f' % classify.classify(status, self.user_id)
             results_json.append(rdata)
+        #log.debug("Assembled")
         return "[{%s}]" % "},{".join(results_json)
         
     def matchResults(self, results, count, since_id=None):
@@ -70,13 +73,13 @@ class TwitterCursor(object):
                 candidates = [c for c in candidates if c > since_id]
             if len(candidates) >= count:
                 return candidates
-            if since_id and max(results) > since_id:
+            if not since_id or max(results) > since_id:
                 since_id = max(results)
         else:
             results = []
         
         results = self.fetchSearchResults(api, term, count, since_id=since_id) + results
-        g.cache.set(key, results, time=30)
+        g.cache.set(key, results, time=3600)
         return results
         
     
@@ -95,23 +98,29 @@ class TwitterCursor(object):
         parameters['rpp'] = count
         if since_id:
             parameters['since_id'] = since_id
-        log.debug("Loading search results for '%s' since %s" % (term, since_id) )
         obj = twapi.ip_api._FetchUrl(url, parameters=parameters)
         data = json.loads(obj)
         #api._CheckForTwitterError(data)
+        log.debug("Loading %d search results for '%s' since %s" % (len(data['results']), term, since_id) )
+        for x in data['results']:
+            s =  twitter.Status.NewFromJsonDict(x)
+            s.user = twitter.User(
+                id = x.get('from_user_id'), 
+                screen_name = x.get('from_user'),
+                profile_image_url = x.get('profile_image_url'))  
+            g.cache.set(twapi.status_cache_key(s.id), s)
         return [x.get('id') for x in data['results']]
 
     def fetchFriendsTimeline(self, api, count, since_id=None):
         key = "utl_%d" % session['user_id']
         results = candidates = g.cache.get(key)
         if candidates:
-            
             # check if cached results are sufficient
             if since_id:
                 candidates = [c for c in candidates if c > since_id]
             if len(candidates) >= count:
-                return candidates
-            if since_id and max(results) > since_id:
+               return candidates
+            if not since_id or max(results) > since_id:
                 since_id = max(results)
         else:
             results = []
@@ -122,7 +131,7 @@ class TwitterCursor(object):
             if not len(page) or not since_id:
                 break
         
-        g.cache.set(key, results, time=60)
+        g.cache.set(key, results, time=3600)
         return results
 
     def fetchFriendsTimelinePage(self, api, count, since_id=None, page=1):
@@ -132,10 +141,10 @@ class TwitterCursor(object):
         parameters['count'] = count
         if since_id:
             parameters['since_id'] = since_id
-        log.debug("Loading timeline for '%d' since %s" % (self.user_id, since_id))
         obj = api._FetchUrl(url, parameters=parameters)
         data = json.loads(obj)
         #api._CheckForTwitterError(data)
+        log.debug("Loading %d timeline for '%d' since %s" % (len(data), self.user_id, since_id))
         statuses = [twitter.Status.NewFromJsonDict(x) for x in data]
         for s in statuses:
             g.cache.set(twapi.status_cache_key(s.id), s)

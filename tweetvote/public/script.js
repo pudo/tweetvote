@@ -23,15 +23,19 @@ $(document).ready(function () {
     }
     
     selectElement = function(tweet_id) {
-        if (-1 == indexOfId(tweet_id)) {
-            return false
-        }
+        newIdx = indexOfId(tweet_id); 
+        if (newIdx == -1 || 
+            newIdx < 0 || 
+            newIdx >= gStatusList.length) {
+            alert("stop!");
+            return;
+        } 
         oldSel = '#tweet_' + gCurrentStatus;
+        //alert("Idx: " + newIdx + " TID: " + tweet_id + " of " + gStatusList.length);
         gCurrentStatus = tweet_id;
         $(oldSel).removeClass("current");
         newSel = '#tweet_' + tweet_id;
         $(newSel).addClass("current");
-        //followSelection();
         return true;
     }
     
@@ -40,7 +44,6 @@ $(document).ready(function () {
         pagePart = ($(window).height()/4);
         viewportTop = $(document).scrollTop();
         scrolledPos = cur.position().top - viewportTop;
-        //alert("Scrolled: " + scrolledPos);
         if (scrolledPos > pagePart * 3) {
             $(document).scrollTop(viewportTop 
                 + cur.outerHeight());
@@ -51,47 +54,18 @@ $(document).ready(function () {
         }
     }
     
-    /*
-    
-    $(window).scroll(function(event) {
-        viewportTop = $(document).scrollTop();
-        viewportBottom = viewportTop + $(window).height();
-        cur = $('#tweet_' + gCurrentStatus);
-        currentTop = cur.position().top;
-        currentBottom = currentTop + cur.outerHeight();
-        idx = indexOfId(gCurrentStatus);
-        
-        if (currentTop < viewportTop) {
-            idx++;
-            if (idx < gStatusList.length) {
-                selectElement(gStatusList[idx].status.id);
-            }
-        }
-        if (currentBottom > viewportBottom) {
-            idx--;
-            if (idx >= 0) {
-                selectElement(gStatusList[idx].status.id);
-            }
-        }
-    });
-    */
-    
     /* Keyboard mappings */
     $(document).keydown(function(e) {
         switch(e.which) {
             case 40: // cur down
-                newIndex = indexOfId(gCurrentStatus) + 1; 
-                if (gStatusList.length > newIndex) {
-                    selectElement(gStatusList[newIndex].status.id); 
-                    followSelection();
-                }
+                newIndex = indexOfId(gCurrentStatus) + 1;
+                selectElement(gStatusList[newIndex].status.id); 
+                followSelection();
                 break;
             case 38: // cur up.
                 newIndex = indexOfId(gCurrentStatus) - 1; 
-                if (newIndex >= 0) {
-                    selectElement(gStatusList[newIndex].status.id); 
-                    followSelection();
-                }
+                selectElement(gStatusList[newIndex].status.id); 
+                followSelection();
                 break;
             case 37: // cur left
                 idx = indexOfId(gCurrentStatus);
@@ -106,8 +80,6 @@ $(document).ready(function () {
                  $("#search_add").focus();
             */
         }
-        //return false;
-        //alert(e.which);
     });
     
     displayAll = function() {
@@ -121,7 +93,7 @@ $(document).ready(function () {
         elemId = tweetElementId(elem);
         idx = indexOfId(elem.status.id);
         elemSel = '#' + elemId
-        var freshPrice = false;
+        var freshPrince = false;
         if (!$(elemSel).length) { // a new one
             freshPrince = true;
             fresh = $('#prototype').clone();
@@ -184,8 +156,15 @@ $(document).ready(function () {
 
         }
         
-        if (freshPrince && gCurrentStatus > 0 
-            && elem.status.id > gCurrentStatus) {
+        $(elemSel + " .leftbox").click(function (e) {
+            submitVote(elem, 1);
+        });
+        $(elemSel + " .rightbox").click(function (e) {
+            submitVote(elem, -1);
+        });
+        
+        if (freshPrince && (gCurrentStatus > 0) 
+            && (elem.status.id > gCurrentStatus)) {
             $(document).scrollTop($(elemSel).outerHeight() + 
                 $(document).scrollTop());
         }
@@ -200,16 +179,16 @@ $(document).ready(function () {
         if (gStatusList.length == 0) {
             firstLoad = true;
         }
-        $.each(gStatusList, function(idx, item) {
-            if ($.inArray(item, data) == -1) {
-                data.push(item);
+        
+        $.each(data, function(idx, item) {
+            if (indexOfId(item.status.id) == -1) {
+                gStatusList.push(item);
             }
         });
         
-        gStatusList = data;
         gStatusList.sort(statusComparator);
         gStatusStats = standardScoreDeviation(gStatusList);
-        
+
         displayAll();
         if (firstLoad) {
             selectElement(gStatusList[0].status.id);
@@ -221,7 +200,7 @@ $(document).ready(function () {
         since_id = null;
         if (gStatusList.length > 0) {
             since_id = gStatusList[0].status.id; 
-        } 
+        }
         loadFromServer(since_id);
     }
     
@@ -288,7 +267,7 @@ $(document).ready(function () {
                 } else {
                     gSearches.push(term);
                     displaySearch(json.term);
-                    loadFromServer(null);
+                    //loadFromServer(null);
                 }
             });
         }
@@ -330,6 +309,11 @@ $(document).ready(function () {
         $("#search_add").blur();
         return false;
     });
+    
+    $(".search_icon").click(function (e) {
+        $("#search_add_form").submit();
+    })
+    
     
     /* Voting AJAX */
     submitVote = function(elem, change) {
