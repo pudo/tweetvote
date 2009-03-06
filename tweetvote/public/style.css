@@ -136,6 +136,7 @@ strong {
 .tweet .rightbox {
     width: 24px;
     height: 80px;
+    max-height: 80px;
     display: table-cell;
 }
 
@@ -234,7 +235,8 @@ strong {
 }
 
 .searches input {
-	background: #cccf00 url(/delete.png) no-repeat center right;
+	background: #cccf00;
+	width: 100px;
 	margin: 0px;
 	margin-bottom: 5px;
 	margin-top: -2px;
@@ -243,6 +245,17 @@ strong {
 	border-right: 1px solid #babd02;
 	padding: 2px 20px 2px 2px;
 	font-size: 1em;
+}
+
+.search_icon {
+    background: url(/search.png) no-repeat center right;
+    position: relative;
+    z-index: 800;
+    margin-left: 95px;
+    margin-bottom: -33px;
+    min-width: 42px;
+    min-height: 42px;
+    
 }
 
 .searches .search_tag,

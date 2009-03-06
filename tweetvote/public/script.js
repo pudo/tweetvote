@@ -222,6 +222,10 @@ $(document).ready(function () {
         if (gStatusList.length > 0) {
             since_id = gStatusList[0].status.id; 
         } 
+        loadFromServer(since_id);
+    }
+    
+    loadFromServer = function (since_id) {
         $.getJSON('/twitterator/next', {'since_id': since_id}, function(data) {
             if (data[0].status) {
                 mergeUpdate(data);
@@ -284,6 +288,7 @@ $(document).ready(function () {
                 } else {
                     gSearches.push(term);
                     displaySearch(json.term);
+                    loadFromServer(null);
                 }
             });
         }
@@ -333,7 +338,14 @@ $(document).ready(function () {
         if (elem.vote && elem.vote.weight == weight) {
             return;
         }
-    
+        if (!elem.vote) {
+            if (weight == 1 && (elem.score < (gStatusStats.mean - gStatusStats.sd))) {
+                weight = 0;
+            } 
+            if (weight == -1 && (elem.score > (gStatusStats.mean + gStatusStats.sd))) {
+                weight = 0;
+            }
+        }
         var url = "/votes" + (elem.vote ? "/" + elem.vote.id : "") + ".json";
         $.post(url, {'weight': weight, 'tweet_id': elem.status.id}, function(reply) {
             if (reply.status) {

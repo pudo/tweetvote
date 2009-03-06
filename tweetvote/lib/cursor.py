@@ -1,6 +1,7 @@
 from copy import copy
 import simplejson as json
 import twitter
+import logging
 
 from pylons import request, session, g
 
@@ -8,6 +9,7 @@ import tweetvote.model as model
 import tweetvote.lib.classify as classify
 import tweetvote.lib.twapi as twapi
 
+log = logging.getLogger(__name__)
 
 class TwitterCursor(object):
     
@@ -74,7 +76,7 @@ class TwitterCursor(object):
             results = []
         
         results = self.fetchSearchResults(api, term, count, since_id=since_id) + results
-        g.cache.set(key, results, time=300)
+        g.cache.set(key, results, time=30)
         return results
         
     
@@ -93,6 +95,7 @@ class TwitterCursor(object):
         parameters['rpp'] = count
         if since_id:
             parameters['since_id'] = since_id
+        log.debug("Loading search results for '%s' since %s" % (term, since_id) )
         obj = twapi.ip_api._FetchUrl(url, parameters=parameters)
         data = json.loads(obj)
         #api._CheckForTwitterError(data)
@@ -129,6 +132,7 @@ class TwitterCursor(object):
         parameters['count'] = count
         if since_id:
             parameters['since_id'] = since_id
+        log.debug("Loading timeline for '%d' since %s" % (self.user_id, since_id))
         obj = api._FetchUrl(url, parameters=parameters)
         data = json.loads(obj)
         #api._CheckForTwitterError(data)

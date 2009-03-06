@@ -3,6 +3,7 @@
 
 <div class="searches">
 <div class="user_tag"><span>${session.get('username')}</span></div>
+<div class="search_icon">&nbsp;</div>
 <form id="search_add_form">
 <input id="search_add" />
 </form>
