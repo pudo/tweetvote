@@ -1,4 +1,4 @@
-body, td, .search input {
+body, td, .search input, label, input {
 	font-size: 0.9em;
 	font-family: 'Lucida Grande', Helvetica, Verdana, sans-serif;
 }
@@ -34,6 +34,14 @@ img {
     text-decoration:none;
 }
 
+.hint {
+    color: #555;
+    font-size: 0.7em;
+    padding-top: 0.3em;
+    margin-top: 0.3em;
+    border-top: 1px dashed #aaa;
+}
+
 #footer {
 	margin-left: auto;
 	margin-right: auto;
@@ -50,10 +58,30 @@ img {
 
 strong {
     color:black;
-    float:right;
     font-size:1.8em;
-    font-weight:normal;
+    font-weight: bold;
     margin:-21px 0px;
+    padding: 36px 36px 36px 36px;
+    display: block;
+}
+
+.table_keys {
+    background:url(/keys.png) no-repeat;
+    font-size: 1.5em;
+    height: 200px;
+    width: 300px;
+}
+
+.loginpage {
+    padding: 18px 36px 18px 36px;
+}
+
+.loginpage b {
+    color: #cf0064;
+}
+
+.loginpage img {
+    padding: 10px;
 }
 
 .login {
@@ -71,12 +99,12 @@ strong {
 	margin: 0.4em 0 0 0;
 	padding: 0.2em;
 	display: block;
-	font-size: 0.8em;
+	font-size: 1em;
 }
 
 .login input[type=submit] {
 	border: 1px solid white;
-	background-color: #d4d700;
+	background-color: #cccf00;
 	color: white;
 	font-size: 1em;
 	padding: 0.3em 0.8em 0.3em 0.8em;
@@ -85,7 +113,7 @@ strong {
 }
 
 .login .error-message {
-	color: #ff5732;
+	color: #cf0064;
 }
 
 .login br { display: none;}
@@ -112,6 +140,7 @@ strong {
     border-bottom: 1px dashed #999;
     padding-left: 2px;
     padding-right: 2px;
+    overflow: hidden;
 }
 
 .tweet.stat_up, 
@@ -125,6 +154,23 @@ strong {
     width: 536px;
     border-right: 24px solid #cf0064;
 }
+
+/*
+.tweet.stat_down, 
+.tweet.vote_down {
+    height: 5px;
+    max-height: 5px;
+    background: #cf0064;
+    overflow: hidden;
+}
+
+.tweet.stat_down.current, 
+.tweet.vote_down:hover {
+    height: 80px;
+    min-height: 80px;
+    background: white;
+}
+*/
 
 .tweet .box {
     width: 488px;

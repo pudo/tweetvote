@@ -114,7 +114,7 @@ $(document).ready(function () {
             text = text.replace(/@([\w\-_]+)/gi, 
                 '<a target="_new" href="http://twitter.com/$1">@$1</a>');
             text = text.replace(/#([\w\-_\.+:=]+\w)/gi, 
-                '<a target="_new" href="http://search.twitter.com/search?q=%23$1">#$1</a>');
+                '<a href="javascript:addSearch(\'#$1\');">#$1</a>');
             
             $(elemSel + " .text").html(text);
             $(elemSel + " .created_at").text(elem.status.created_at);
@@ -187,6 +187,9 @@ $(document).ready(function () {
         });
         
         gStatusList.sort(statusComparator);
+        if (gStatusList.length > 1000) {
+            gStatusList = gStatusList.slice(0, 1000);
+        }
         gStatusStats = standardScoreDeviation(gStatusList);
 
         displayAll();
@@ -214,7 +217,7 @@ $(document).ready(function () {
                     warning(data.status);
                 }
             }
-            setTimeout(loadNext, 15000);
+            setTimeout(loadNext, 5000);
         })
     }
     
