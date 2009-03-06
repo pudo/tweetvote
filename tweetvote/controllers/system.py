@@ -40,3 +40,7 @@ class SystemController(BaseController):
         session.clear()
         session.save()
         redirect_to('/')
+        
+        
+    def faq(self):
+        return render("/faq.mako")
