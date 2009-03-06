@@ -51,6 +51,8 @@ $(document).ready(function () {
         }
     }
     
+    /*
+    
     $(window).scroll(function(event) {
         viewportTop = $(document).scrollTop();
         viewportBottom = viewportTop + $(window).height();
@@ -72,6 +74,7 @@ $(document).ready(function () {
             }
         }
     });
+    */
     
     /* Keyboard mappings */
     $(document).keydown(function(e) {
@@ -98,10 +101,10 @@ $(document).ready(function () {
                 idx = indexOfId(gCurrentStatus);
                 submitVote(gStatusList[idx], 1);
                 break;
+            /*
             case 83:
-                term = prompt("Enter your search term:");
-                addSearch(term);
-                loadNext();
+                 $("#search_add").focus();
+            */
         }
         //return false;
         //alert(e.which);
@@ -118,7 +121,9 @@ $(document).ready(function () {
         elemId = tweetElementId(elem);
         idx = indexOfId(elem.status.id);
         elemSel = '#' + elemId
+        var freshPrice = false;
         if (!$(elemSel).length) { // a new one
+            freshPrince = true;
             fresh = $('#prototype').clone();
             fresh.attr('id', elemId)
             if(idx == 0) {
@@ -171,7 +176,18 @@ $(document).ready(function () {
         }
         
         if ($(elemSel).is(':hidden')) {
-            $(elemSel).slideDown();
+            if (gCurrentStatus > 0 && elem.status.id > gCurrentStatus) {
+                $(elemSel).show();
+            } else {
+                $(elemSel).slideDown();
+            }
+
+        }
+        
+        if (freshPrince && gCurrentStatus > 0 
+            && elem.status.id > gCurrentStatus) {
+            $(document).scrollTop($(elemSel).outerHeight() + 
+                $(document).scrollTop());
         }
     }
     
@@ -180,6 +196,10 @@ $(document).ready(function () {
     }
     
     mergeUpdate = function(data) {
+        var firstLoad = false; 
+        if (gStatusList.length == 0) {
+            firstLoad = true;
+        }
         $.each(gStatusList, function(idx, item) {
             if ($.inArray(item, data) == -1) {
                 data.push(item);
@@ -191,7 +211,9 @@ $(document).ready(function () {
         gStatusStats = standardScoreDeviation(gStatusList);
         
         displayAll();
-        selectElement(gStatusList[0].status.id);
+        if (firstLoad) {
+            selectElement(gStatusList[0].status.id);
+        }
     }
     
     /* Load additional tweets from server. */
@@ -236,31 +258,73 @@ $(document).ready(function () {
     
     
     /* Search management functionality */
-    fetchSearches = function (f) {
-        $.getJSON('/search', f);
+    gSearches = new Array();
+    
+    fetchSearches = function () {
+        $.getJSON('/search', function(json) {
+            if (json.status && json.status == 'error') {
+                warning("Adding search '" + term + "' failed; try again.");
+            } else {
+                gSearches = json; 
+                $.each(gSearches, function(i, term) {
+                    displaySearch(term);
+                });
+            }
+        });
     }
     
     addSearch = function (term) {
-        $.getJSON('/search/add', {'term': term }, function (json) {
-            if (json.status == 'error' || $.inArray(term, json) == -1) {
-                warning("Adding search '" + term + "' failed; try again.");
-            }
-        });
+        if ($.inArray(term, gSearches) != -1) {
+            return;
+        }
+        if (term) {
+            $.getJSON('/search/add', {'term': term }, function (json) {
+                if (json.status && json.status == 'error') {
+                    warning("Adding search '" + term + "' failed; try again.");
+                } else {
+                    gSearches.push(term);
+                    displaySearch(json.term);
+                }
+            });
+        }
     }
     
     delSearch = function (term) {
+        if ($.inArray(term, gSearches) == -1) {
+            return;
+        }
         $.getJSON('/search/del', {'term': term }, function (json) {
-            if (json.status == 'error' || $.inArray(term, json) != -1) {
+            if (json.status && json.status == 'error') {
                 warning("Removing search '" + term + "' failed; try again.");
-            }
+            } 
         });
     }
     
-    delSearchCurry = function(term) {
-        return function () { 
-            delSearch(term); 
-        };
+    displaySearch = function(term) {
+        field = $("#protosearch").clone();
+        field.attr("id", "s_tmp");
+        field.insertAfter("#protosearch")
+        $("#s_tmp span").text(term);
+        elem = $("#s_tmp");
+        $("#s_tmp span").click(function (e) {
+            delSearch(term);
+            $(e.target.parentNode).hide();
+            
+        })
+        $("#s_tmp").show();
+        $("#s_tmp").attr("id", null);
     }
+    
+    $(".user_tag span").click(function(e) {
+        document.location.href = '/logout';
+    });
+    
+    $("#search_add_form").submit(function (e) {
+        addSearch($("#search_add").val());
+        $("#search_add").val("");
+        $("#search_add").blur();
+        return false;
+    });
     
     /* Voting AJAX */
     submitVote = function(elem, change) {
@@ -286,6 +350,7 @@ $(document).ready(function () {
     
     
     // initial load.
+    fetchSearches();
     loadNext();
-    
+    $(document).focus();
 });

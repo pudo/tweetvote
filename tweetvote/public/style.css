@@ -1,7 +1,8 @@
-body, td {
+body, td, .search input {
 	font-size: 0.9em;
 	font-family: 'Lucida Grande', Helvetica, Verdana, sans-serif;
 }
+
 body {
 	background-color: #00d8ff;
 }
@@ -26,6 +27,7 @@ img {
 #page {
 	background-color: white;
 	color: #333333;
+	min-height: 15em;
 }
 
 #page a {
@@ -90,6 +92,7 @@ strong {
 
 
 #timeline {
+    z-index: 500;
     padding-top: 15px;
     min-width: 560px;
     background-color: white;
@@ -209,8 +212,60 @@ strong {
 }
 
 .tweet .meta {
-    font-size: 0.7em;
+    font-size: 0.8em;
     font-style: italic;
     padding-top: 0.5em;
     color: #aaa;
+}
+
+.searches {
+    z-index: 300;
+    position: fixed;
+    top: 250px;
+    left: 50%;
+    margin-left: 282px;
+    color: white;
+    font-weight: bold;
+}
+
+.searches, .searches input {
+    color: white;
+    font-weight: bold;    
+}
+
+.searches input {
+	background: #cccf00 url(/delete.png) no-repeat center right;
+	margin: 0px;
+	margin-bottom: 5px;
+	margin-top: -2px;
+	border: 0px;
+	border-bottom: 1px solid #90b830;
+	border-right: 1px solid #babd02;
+	padding: 2px 20px 2px 2px;
+	font-size: 1em;
+}
+
+.searches .search_tag,
+.searches .user_tag {
+    margin: 0px;
+    padding: 0px;
+    margin-bottom: 8px;
+}
+
+.searches .search_tag span,
+.searches .user_tag span {
+	padding: 2px 20px 2px 2px;
+	cursor: pointer;
+}
+
+.searches .search_tag span {
+    background: #cccf00 url(/delete.png) no-repeat center right;
+    border-bottom: 1px solid #90b830;
+	border-right: 1px solid #babd02;
+}
+
+.searches .user_tag span {
+    background: #cf0064 url(/delete.png) no-repeat center right;
+	border-bottom: 1px solid #8d0022;
+	border-right: 1px solid #ae0043;
 }

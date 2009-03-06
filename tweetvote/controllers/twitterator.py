@@ -39,5 +39,5 @@ class TwitteratorController(BaseController):
         for search in session_searches():
             cur.addSearch(search)
         res = cur.loadNext(since_id=since_id, count=20)
-        print res
+        #print res
         return res

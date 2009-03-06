@@ -16,6 +16,7 @@ class SearchController(BaseController):
 
     @with_auth
     def index(self, **kw):
+        searches = session_searches()
         return json.dumps(session_searches())
     
     @with_auth
@@ -23,7 +24,8 @@ class SearchController(BaseController):
         response.content_type = 'text/javascript'
         try:
             term = validators.String(empty=False).to_python(request.params['term'], None)
-            return json.dumps(add_search(term))
+            add_search(term)
+            return json.dumps({'term': term})
         except Exception, e:
             return fstatus(repr(e), http_code=400, format='json')
     
@@ -32,6 +34,7 @@ class SearchController(BaseController):
         response.content_type = 'text/javascript'
         try:
             term = validators.String(empty=False).to_python(request.params['term'], None)
-            return json.dumps(del_search(term))
+            del_search(term)
+            return json.dumps({'term': term})
         except Exception, e:
             return fstatus(repr(e), http_code=400, format='json')

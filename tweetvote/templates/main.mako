@@ -1,6 +1,14 @@
 <%inherit file="base.mako" />
 <%def name="title()">What's good?</%def>
 
+<div class="searches">
+<div class="user_tag"><span>${session.get('username')}</span></div>
+<form id="search_add_form">
+<input id="search_add" />
+</form>
+<div id="protosearch" class="search_tag" style="display: none;"><span>#spectrial</span></div>
+</div>
+
 <div id="timeline">
 <div id="prototype" class="tweet" style="display: none;">
 		<div class="leftbox">&nbsp;</div>
