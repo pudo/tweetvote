@@ -35,10 +35,10 @@ class VoteUpdateForm(formencode.Schema):
 class VoteQueryForm(formencode.Schema):
     allow_extra_fields = True
     status = validators.Int(not_empty=False, if_empty=None, if_missing=None)
-    tweet_user = validators.UnicodeString(not_empty=False, if_empty=None)
-    vote_user = validators.UnicodeString(not_empty=False, if_empty=None)
-    count = validators.Int(not_empty=False, if_empty=100, max=1000, min=1)
-    page = validators.Int(not_empty=False, if_empty=1, max=10000, min=1)
+    tweet_user = validators.UnicodeString(not_empty=False, if_empty=None, if_missing=None)
+    vote_user = validators.UnicodeString(not_empty=False, if_empty=None, if_missing=None)
+    count = validators.Int(not_empty=False, if_empty=100, max=1000, min=1, if_missing=100)
+    page = validators.Int(not_empty=False, if_empty=1, max=10000, min=1, if_missing=1)
 
 class VotesController(BaseController):
     """REST Controller styled on the Twitter API"""
