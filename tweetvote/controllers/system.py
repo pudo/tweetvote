@@ -44,3 +44,6 @@ class SystemController(BaseController):
         
     def faq(self):
         return render("/faq.mako")
+        
+    def api(self):
+        return render("/api.mako")

@@ -36,7 +36,8 @@ def make_map():
 
     map.connect('/classify', controller='twitterator', action='index')
 
-    map.connect('/faq', controller='system', action='faq')
+    map.connect('/faq.doc', controller='system', action='faq')
+    map.connect('/api.doc', controller='system', action='api')
     map.connect('/login', controller='system', action='login')
     map.connect('/logout', controller='system', action='logout')
 

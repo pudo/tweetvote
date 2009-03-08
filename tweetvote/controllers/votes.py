@@ -60,14 +60,15 @@ class VotesController(BaseController):
             count=form['count'],
             page=form['page'])
         
-        if format == 'json':
+        if format == 'json':    
+            response.content_type = "text/javascript"
             return "[%s]" % ",".join([v.toJSON() for v in votes])
 
         xml = etree.Element("votes")
         for vote in votes:
             xml.append(vote.toXML())
+        response.content_type = "text/xml"
         return etree.tostring(xml, encoding='UTF-8')
-        #return fstatus("No format selected.", http_code=404, format=format)
         
     def _get_vote(self, id, format, check_owner=True):
         try:
@@ -96,8 +97,10 @@ class VotesController(BaseController):
             vote = self._get_vote(id, format, check_owner=False)
             
             if format == 'json':
+                response.content_type = "text/javascript"
                 return vote.toJSON()
             elif format == 'xml':
+                response.content_type = "text/xml"
                 xml = vote.toXML()
                 return etree.tostring(xml, encoding='UTF-8')
 

@@ -21,8 +21,8 @@
 	
 	<div id="footer">
 		<a href="http://pudo.org/blog">blog</a> &middot;
-		<a href="/faq">faq</a> &middot;
-		<a href="http://github.com/pudo/tweetvote/blob/727a44b90a7b29c41fc546ec14b9a3336adc34ab/tweetvote/controllers/votes.py">api</a> &middot;
+		<a href="/faq.doc">faq</a> &middot;
+		<a href="/api.doc">api</a> &middot;
 		<a href="http://pudo.org/blog/about/">imprint</a>
 	</div>
 </body>
