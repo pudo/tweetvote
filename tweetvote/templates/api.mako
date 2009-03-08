@@ -10,7 +10,8 @@
 	
 	<b>tweetvote</b> exposes a REST resource, <code>votes</code>. A new <code>vote</code> can be created 
 	by executing a POST at <code>/votes</code>. The newly created resource will be assigned an <code>id</code>
-	which can then be used to access, modify or delete the resource at <code>/votes/<i>id</i></code>. <br>
+	which can then be used to access, modify or delete the resource at <code>/votes/<i>id</i></code>.
+	<br><br>
 	Some actions <b>require authentication</b>. Authentication is performed via <code>HTTP Basic</code> request 
 	headers, which will be directly forwarded to Twitter and checked there. Once Twitter makes <code>OAuth</code>
 	tokens publicly available, those will be available as an alternative means of identifying users. 

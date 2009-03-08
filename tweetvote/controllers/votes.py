@@ -161,7 +161,7 @@ class VotesController(BaseController):
             classify.learn_vote(vote)
             log.debug("Updated: %s" % vote)
             
-            return self.view(vote.id, format=format, **kw)
+            return self.view(vote.id, format=format)
         except StatusException, se:
             return se.message
     
