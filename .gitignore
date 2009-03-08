@@ -27,3 +27,5 @@ data/bayes/global.bay
 tweetvote/controllers/search.pyc
 tweetvote/lib/cursor.pyc
 tweetvote/lib/twitter.pyc
+tweetvote/lib/queries.pyc
+tweetvote.tmproj

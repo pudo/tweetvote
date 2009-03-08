@@ -13,6 +13,7 @@ import base64
 
 import formencode
 from formencode import validators
+from decorator import decorator
 
 from pylons.controllers import WSGIController
 from pylons.templating import render_mako as render
@@ -59,11 +60,11 @@ def require_login():
     if not logged_in():
         abort(401)
         
-def with_auth(meth):
-    def new(*args, **kws):
+def with_auth(**kw):
+    def new(meth, *args, **kws):
         require_login()
         return meth(*args, **kws)
-    return new
+    return decorator(new)
 
 MIMETYPES = {
     'json': 'text/javascript',
@@ -113,22 +114,19 @@ def rest_validate(schema, fields=None):
     
 
 def with_format(valid=['html', 'json', 'xml']):
-    def wrap(meth):
-        def new(*args, **kws):
-            if 'format' in kws.keys():
-                format = kws['format'].lower().strip()
-                if not format in valid:
-                    abort(404)
-                kws['format'] = format
+    def extract_format  (meth, *args, **kws):
+        if 'format' in kws.keys():
+            format = kws['format'].lower().strip()
+            if not format in valid:
+                abort(404)
+            kws['format'] = format
 
-                mime = "text/%s" % format 
-                if format in MIMETYPES.keys():
-                    mime = MIMETYPES[format]
-                response.content_type = mime
-
-            return meth(*args, **kws)
-        return new
-    return wrap
+            mime = "text/%s" % format 
+            if format in MIMETYPES.keys():
+                mime = MIMETYPES[format]
+            response.content_type = mime
+        return meth(*args, **kws)
+    return decorator(extract_format)
 
 
 #################################################

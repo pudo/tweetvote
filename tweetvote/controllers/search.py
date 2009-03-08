@@ -14,12 +14,12 @@ log = logging.getLogger(__name__)
 
 class SearchController(BaseController):
 
-    @with_auth
+    @with_auth()
     def index(self, **kw):
         searches = session_searches()
         return json.dumps(session_searches())
     
-    @with_auth
+    @with_auth()
     def add(self, **kw):
         response.content_type = 'text/javascript'
         try:
@@ -29,7 +29,7 @@ class SearchController(BaseController):
         except Exception, e:
             return fstatus(repr(e), http_code=400, format='json')
     
-    @with_auth
+    @with_auth()
     def delete(self, **kw):
         response.content_type = 'text/javascript'
         try:

@@ -33,7 +33,7 @@ class MemcacheCache(object):
         return self.client.get("%s_mod" % self._GetKey(key))
         
     def _GetKey(self, key):
-        return "%s%s" % (md5.new(key).hexdigest(), self.prefix)
+        return "%s%s" % (self.prefix, md5.new(key).hexdigest())
 
 
 ip_api = twitter.Api()
@@ -85,6 +85,16 @@ def get_user(id):
         g.cache.set(key, user, time=86400*2)
     return user
     
+def uid_by_name(name):
+    if name:
+        try:
+            return int(name)
+        except ValueError, ve:
+            user = get_user(name.encode("ascii"))
+            if user:
+                return user.id
+    return None
+        
 def status_cache_key(id):
     return "status_%s" % id
     

@@ -18,32 +18,56 @@ from formencode import validators
 import tweetvote.model as model
 from tweetvote.lib.base import *
 from tweetvote.lib import twapi
+from tweetvote.lib import queries
 from tweetvote.lib import classify
 
 log = logging.getLogger(__name__)
 
 class VoteCreateForm(formencode.Schema):
     allow_extra_fields = True
-    tweet_id = validators.Int(not_empty=True)
+    tweet_id = validators.Int(not_empty=False, if_emtpy=1.0, if_missing=1.0)
     weight = validators.Number(not_empty=True)
 
 class VoteUpdateForm(formencode.Schema):
     allow_extra_fields = True
     weight = validators.Number(not_empty=True)
+    
+class VoteQueryForm(formencode.Schema):
+    allow_extra_fields = True
+    status = validators.Int(not_empty=False, if_empty=None, if_missing=None)
+    tweet_user = validators.UnicodeString(not_empty=False, if_empty=None)
+    vote_user = validators.UnicodeString(not_empty=False, if_empty=None)
+    count = validators.Int(not_empty=False, if_empty=100, max=1000, min=1)
+    page = validators.Int(not_empty=False, if_empty=1, max=10000, min=1)
 
 class VotesController(BaseController):
     """REST Controller styled on the Twitter API"""
 
     @rest.dispatch_on(POST='create')
-    def index(self, format='html'):
+    @with_format(valid=['json', 'xml'])
+    def index(self, format='xml'):
         """GET /votes: All items in the collection"""
-        if request.method in ['POST', 'PUT']:
-            print "Patch patch patch"
-            return self.create(format=format)
-        print "FORMAT", format
-        return formatted_status("n/a", code=404, format=format)
+        form = dict()
+        try: 
+            form = rest_validate(VoteQueryForm)
+        except formencode.Invalid, i:
+            return fstatus(i.message, format=format, http_code=400)
         
-        # url('votes')
+        votes = queries.find_votes(
+            status=form['status'],
+            tweet_user=form['tweet_user'], 
+            vote_user=form['vote_user'],
+            count=form['count'],
+            page=form['page'])
+        
+        if format == 'json':
+            return "[%s]" % ",".join([v.toJSON() for v in votes])
+
+        xml = etree.Element("votes")
+        for vote in votes:
+            xml.append(vote.toXML())
+        return etree.tostring(xml, encoding='UTF-8')
+        #return fstatus("No format selected.", http_code=404, format=format)
         
     def _get_vote(self, id, format, check_owner=True):
         try:
@@ -67,7 +91,7 @@ class VotesController(BaseController):
         abort(405)
     
     @with_format()    
-    def view(self, id, format='html', **kw):
+    def view(self, id, format='html'):
         try:
             vote = self._get_vote(id, format, check_owner=False)
             
@@ -82,9 +106,9 @@ class VotesController(BaseController):
         except StatusException, se:
             return se.message
     
-    @with_auth
+    @with_auth()
     @with_format()
-    def create(self, format='html', **kw):
+    def create(self, format='html'):
         """POST /votes: Create a new item"""
         
         form = dict()
@@ -109,11 +133,11 @@ class VotesController(BaseController):
         classify.learn_vote(vote)
         log.debug("Created: %s" % vote)
         
-        return self.view(vote.id, format=format, **kw)
+        return self.view(vote.id, format=format)
 
-    @with_auth
+    @with_auth()
     @with_format()
-    def update(self, id, format='html', **kw):
+    def update(self, id, format='html'):
         """PUT /votes/id: Update an existing item"""
         try:
             vote = self._get_vote(id, format)
@@ -138,9 +162,9 @@ class VotesController(BaseController):
         except StatusException, se:
             return se.message
     
-    @with_auth
+    @with_auth()
     @with_format()
-    def delete(self, id, format='html', **kw):
+    def delete(self, id, format='html'):
         """DELETE /votes/id: Delete an existing item"""
         try:
             vote = self._get_vote(id, format)

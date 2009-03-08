@@ -22,11 +22,11 @@ log = logging.getLogger(__name__)
 
 class TwitteratorController(BaseController):
 
-    @with_auth
+    @with_auth()
     def index(self, **kw):
         return render('/main.mako')
     
-    @with_auth
+    @with_auth()
     def next(self, **kw):
         since_id = None
         try:

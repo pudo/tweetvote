@@ -38,10 +38,10 @@ class TwitterCursor(object):
         for term in self.searches:
             results = self.fetchSearch(api, term, count*2, since_id=since_id)
             self.addItems(results, term)
-        log.debug("Found a total of %d items" % len(self.items))
+        #log.debug("Found a total of %d items" % len(self.items))
         rkeys = [k for k in reversed(sorted(self.items.keys()))]
         results = self.matchResults(rkeys, count, since_id=since_id)
-        log.debug("Giving %d items" % len(results))
+        #log.debug("Giving %d items" % len(results))
         results_json = []
         for result in results:
             status = twapi.get_status(result)
@@ -101,7 +101,7 @@ class TwitterCursor(object):
         obj = twapi.ip_api._FetchUrl(url, parameters=parameters)
         data = json.loads(obj)
         #api._CheckForTwitterError(data)
-        log.debug("Loading %d search results for '%s' since %s" % (len(data['results']), term, since_id) )
+        #log.debug("Loading %d search results for '%s' since %s" % (len(data['results']), term, since_id) )
         for x in data['results']:
             s =  twitter.Status.NewFromJsonDict(x)
             s.user = twitter.User(
@@ -144,7 +144,7 @@ class TwitterCursor(object):
         obj = api._FetchUrl(url, parameters=parameters)
         data = json.loads(obj)
         #api._CheckForTwitterError(data)
-        log.debug("Loading %d timeline for '%d' since %s" % (len(data), self.user_id, since_id))
+        #log.debug("Loading %d timeline for '%d' since %s" % (len(data), self.user_id, since_id))
         statuses = [twitter.Status.NewFromJsonDict(x) for x in data]
         for s in statuses:
             g.cache.set(twapi.status_cache_key(s.id), s)
