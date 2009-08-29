@@ -2,7 +2,7 @@
 import sqlalchemy as sa
 from sqlalchemy import orm
 
-from tweetvote.model import meta
+import meta
 from vote import * 
 
 def init_model(engine):
